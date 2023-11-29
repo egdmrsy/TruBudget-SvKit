@@ -1,0 +1,42 @@
+name: Daily Dependency Check for vulnerabilities
+on:
+  schedule:
+    - cron: '0 0 * * *'
+  workflow_dispatch:
+
+jobs:
+  audit: 
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [ 18.x ]
+        project:
+          [
+            frontend,
+            api,
+            blockchain,
+            provisioning,
+            e2e-test,
+            excel-export-service,
+            email-notification-service,
+            storage-service,
+            logging-service,
+            migration
+          ]
+    defaults:
+      run:
+        working-directory: ${{ matrix.project }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+      - uses: ./.github/workflows/audit
+  scheduled-job-notification:
+    needs:
+      - audit
+    if: always()
+    uses: ./.github/workflows/reusable-scheduled-job-notification.yml
+    with:
+      success: ${{ needs.analyze.result == 'success' }}
