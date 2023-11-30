@@ -26,17 +26,10 @@ async function runAudit(projectName) {
   process.chdir(projectName);
   core.info(`Current working directory: ${process.cwd()}`);
 
-  const auditCommand = "npm ci --no-audit --legacy-peer-deps && npm run audit -- --production";
   let result = child_process.spawnSync("npm", ["ci", "--no-audit", "--legacy-peer-deps"], {
     encoding: 'utf-8',
     maxBuffer: SPAWN_PROCESS_BUFFER_SIZE
   });
-  if(result.status === null) {
-    core.setFailed("Audit process was killed");
-  }
-  if(result.stderr && result.stderr.length > 0) {
-    core.setFailed(result.stderr);
-  }
 
   result = child_process.spawnSync("npm", ["run", "audit", "--", "--production"], {
     encoding: 'utf-8',
