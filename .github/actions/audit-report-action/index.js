@@ -30,6 +30,11 @@ async function runAudit(projectName) {
     maxBuffer: SPAWN_PROCESS_BUFFER_SIZE,
   });
 
+  core.info(`Audit result: ${result}`);
+  core.info(`Audit output: ${result.output}`);
+  core.info(`Audit stdout: ${result.stdout}`);
+  core.info(`Audit stdout: ${result.status}`);
+
   if(result.error) {
     
   }
