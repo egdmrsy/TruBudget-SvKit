@@ -30892,8 +30892,9 @@ async function runAudit(projectName) {
     const severity = data[11];
     const url = data[12];
     }
-  }
+
   process.chdir('..');
+  }
 
   
 /*
