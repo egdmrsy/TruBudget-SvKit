@@ -7,7 +7,7 @@ const SPAWN_PROCESS_BUFFER_SIZE = 10485760
 
 async function run() {
 
-  const projects = core.getInput('projects');
+  const projects = core.getInput('projects').split(',');
   if(!projects) {
     throw new Error('Project names are required');
   }
