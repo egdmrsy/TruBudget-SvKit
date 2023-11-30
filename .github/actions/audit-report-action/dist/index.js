@@ -30873,12 +30873,18 @@ async function runAudit(projectName) {
     for(let i = 0; i < dataString.length; i++) {
       if(dataString.charAt(i).match(/\s/gm) == null) {
         singleData = singleData.concat(dataString.charAt(i));
-        continue;
+      } else {
+          if(i < dataString.length - 1 && dataString.dataString.charAt(i+1).match(/\s/gm) == null && dataString.charAt(i-1).match(/\s/gm) == null) {
+            singleData = singleData.concat(dataString.charAt(i));
+          } else {
+            if(singleData.length > 0) {
+              data.push(singleData);
+              singleData = "";
+            }
+          
+          }
       }
-      if(singleData.length > 0) {
-        data.push(singleData);
-        singleData = "";
-      }
+
     }
 
     for(const dataItem of data) {
