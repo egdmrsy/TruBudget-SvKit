@@ -30867,6 +30867,7 @@ async function runAudit(projectName) {
     let resultStripped = stripAnsi(result.stdout);
     resultStripped = resultStripped.replace(/[^a-zA-Z0-9\.\?\/\:\-\|\!\s]/gm, "");
     const dataString = resultStripped.split('npm audit security report')[1].trim();
+    core.info(dataString);
     const data = [];
     let singleData = "";
 
@@ -30881,14 +30882,15 @@ async function runAudit(projectName) {
               data.push(singleData);
               singleData = "";
             }
-          
           }
       }
-
     }
-
-    for(const dataItem of data) {
-      core.info(dataItem);
+    const id = data[7];
+    const module = data[8];
+    const description = data[9];
+    const paths = data[10];
+    const severity = data[11];
+    const url = data[12];
     }
   }
   process.chdir('..');
@@ -30908,7 +30910,7 @@ async function runAudit(projectName) {
   } else {
     return true;
   }*/
-}
+
 
 
 function stripAnsi(string) {
