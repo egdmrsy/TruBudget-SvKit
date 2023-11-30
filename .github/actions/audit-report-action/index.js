@@ -62,15 +62,14 @@ async function runAudit(projectName) {
     let singleData = "";
 
     for(let i = 0; i < dataString.length; i++) {
-      core.info(`Character: ${dataString.charAt(i)} - matches ${dataString.charAt(i).match(/\s/gm) == null}`);
       if(dataString.charAt(i).match(/\s/gm) == null) {
         singleData.concat(dataString.charAt(i));
-      } else {
-        if(singleData.length > 0) {
-          core.info(singleData);
-          data.push(singleData);
-          singleData = "";
-        }
+        continue;
+      }
+      core.info(`Single data: ${singleData}`);
+      if(singleData.length > 0) {
+        data.push(singleData);
+        singleData = "";
       }
     }
 
