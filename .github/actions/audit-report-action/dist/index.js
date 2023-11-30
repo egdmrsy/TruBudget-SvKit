@@ -30764,47 +30764,6 @@ function parseParams (str) {
 module.exports = parseParams
 
 
-/***/ }),
-
-/***/ 3423:
-/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __nccwpck_require__) => {
-
-"use strict";
-// ESM COMPAT FLAG
-__nccwpck_require__.r(__webpack_exports__);
-
-// EXPORTS
-__nccwpck_require__.d(__webpack_exports__, {
-  "default": () => (/* binding */ stripAnsi)
-});
-
-;// CONCATENATED MODULE: ./node_modules/ansi-regex/index.js
-function ansiRegex({onlyFirst = false} = {}) {
-	const pattern = [
-	    '[\\u001B\\u009B][[\\]()#;?]*(?:(?:(?:(?:;[-a-zA-Z\\d\\/#&.:=?%@~_]+)*|[a-zA-Z\\d]+(?:;[-a-zA-Z\\d\\/#&.:=?%@~_]*)*)?\\u0007)',
-		'(?:(?:\\d{1,4}(?:;\\d{0,4})*)?[\\dA-PR-TZcf-ntqry=><~]))'
-	].join('|');
-
-	return new RegExp(pattern, onlyFirst ? undefined : 'g');
-}
-
-;// CONCATENATED MODULE: ./node_modules/strip-ansi/index.js
-
-
-const regex = ansiRegex();
-
-function stripAnsi(string) {
-	if (typeof string !== 'string') {
-		throw new TypeError(`Expected a \`string\`, got \`${typeof string}\``);
-	}
-
-	// Even though the regex is global, we don't need to reset the `.lastIndex`
-	// because unlike `.exec()` and `.test()`, `.replace()` does it automatically
-	// and doing it manually has a performance penalty.
-	return string.replace(regex, '');
-}
-
-
 /***/ })
 
 /******/ 	});
@@ -30840,34 +30799,6 @@ function stripAnsi(string) {
 /******/ 	}
 /******/ 	
 /************************************************************************/
-/******/ 	/* webpack/runtime/define property getters */
-/******/ 	(() => {
-/******/ 		// define getter functions for harmony exports
-/******/ 		__nccwpck_require__.d = (exports, definition) => {
-/******/ 			for(var key in definition) {
-/******/ 				if(__nccwpck_require__.o(definition, key) && !__nccwpck_require__.o(exports, key)) {
-/******/ 					Object.defineProperty(exports, key, { enumerable: true, get: definition[key] });
-/******/ 				}
-/******/ 			}
-/******/ 		};
-/******/ 	})();
-/******/ 	
-/******/ 	/* webpack/runtime/hasOwnProperty shorthand */
-/******/ 	(() => {
-/******/ 		__nccwpck_require__.o = (obj, prop) => (Object.prototype.hasOwnProperty.call(obj, prop))
-/******/ 	})();
-/******/ 	
-/******/ 	/* webpack/runtime/make namespace object */
-/******/ 	(() => {
-/******/ 		// define __esModule on exports
-/******/ 		__nccwpck_require__.r = (exports) => {
-/******/ 			if(typeof Symbol !== 'undefined' && Symbol.toStringTag) {
-/******/ 				Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
-/******/ 			}
-/******/ 			Object.defineProperty(exports, '__esModule', { value: true });
-/******/ 		};
-/******/ 	})();
-/******/ 	
 /******/ 	/* webpack/runtime/compat */
 /******/ 	
 /******/ 	if (typeof __nccwpck_require__ !== 'undefined') __nccwpck_require__.ab = __dirname + "/";
@@ -30879,7 +30810,6 @@ var __webpack_exports__ = {};
 const core = __nccwpck_require__(4097);
 const github = __nccwpck_require__(3617);
 const child_process = __nccwpck_require__(2081);
-const stripAnsi = __nccwpck_require__(3423);
 
 const SPAWN_PROCESS_BUFFER_SIZE = 10485760
 
@@ -30936,6 +30866,19 @@ async function runAudit(projectName) {
   } else {
     return true;
   }
+}
+
+
+function stripAnsi(string) {
+  const pattern = [
+    '[\\u001B\\u009B][[\\]()#;?]*(?:(?:(?:(?:;[-a-zA-Z\\d\\/#&.:=?%@~_]+)*|[a-zA-Z\\d]+(?:;[-a-zA-Z\\d\\/#&.:=?%@~_]*)*)?\\u0007)',
+    '(?:(?:\\d{1,4}(?:;\\d{0,4})*)?[\\dA-PR-TZcf-ntqry=><~]))'
+    ].join('|');
+	if (typeof string !== 'string') {
+		throw new TypeError(`Expected a \`string\`, got \`${typeof string}\``);
+	}
+
+	return string.replace(new RegExp(pattern, 'g'), '');
 }
 
 run();
