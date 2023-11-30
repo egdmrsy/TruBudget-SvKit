@@ -57,11 +57,17 @@ async function runAudit(projectName) {
     core.info("Vulnerabilities found");
     let resultStripped = stripAnsi(result.stdout);
     resultStripped = resultStripped.replace(/[^a-zA-Z0-9\.\?\/\:\-\|\!\s]/gm, "");
-    const resultd = resultStripped.split('npm audit security report')[1].trim();
+    const dataString = resultStripped.split('npm audit security report')[1].trim();
     const data = [];
-    for(let i = 0; i < resultd.length; i++) {
-      if(!resultd.charAt(i).match(/\s/gm)) {
-        data.push(resultd.charAt(i));
+    let singleData = '';
+    for(let i = 0; i < dataString.length; i++) {
+      if(!dataString.charAt(i).match(/\s/gm)) {
+        singleData.concat(dataString.charAt(i));
+      } else {
+        if(singleData.length > 0) {
+          data.push(singleData);
+          singleData = '';
+        }
       }
     }
 
