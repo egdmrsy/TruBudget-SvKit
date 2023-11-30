@@ -48,12 +48,15 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           OUTCOME: ${{ steps.audit.outcome == 'success' }}
+          RES: ${{ env.RESULT }}
         run: |
           number=$(gh issue list --search "Daily Audit Failed: $GITHUB_WORKFLOW" --limit 1 --json number -q .[].number)
 
           echo $number
           echo $OUTCOME
-          echo $RES
+          echo $RESULT
+          echo $ {{env.RESULT}}
+          echo $ {{steps.audit.outcome}}
 
           if [[ $number ]]; then
             if [[ $OUTCOME == "true" ]]; then
