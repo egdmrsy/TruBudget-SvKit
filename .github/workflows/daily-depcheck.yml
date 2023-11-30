@@ -7,6 +7,7 @@ on:
 jobs:
   audit: 
     runs-on: ubuntu-latest
+    if: always()
     strategy:
       matrix:
         node-version: [ 18.x ]
@@ -32,19 +33,18 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
-      - name: Audit project ${{ matrix.project }}
+      - id: audit
+        name: Audit project ${{ matrix.project }}
         run: |
             npm ci --no-audit --legacy-peer-deps
             result="$(npm run audit -- --production | sed -e 's/\x1B\[[0-9;]*m//g' -e 's/>//g')"
-            echo "RESULT<<EOF" >> $GITHUB_STEP_SUMMARY
-            echo $result >> $GITHUB_STEP_SUMMARY
-            echo "EOF" >> $GITHUB_STEP_SUMMARY
+            echo "RESULT<<EOF" >> $GITHUB_ENV
+            echo $result >> $GITHUB_ENV
+            echo "EOF" >> $GITHUB_ENV
         shell: bash
-  scheduled-audit-notification:
-    needs:
-      - audit
-    if: always()
-    uses: ./.github/workflows/scheduled-audit-notification.yml
-    with:
-      success: ${{ needs.audit.result == 'success' }}
-      res: "test"
+      - name: Create Issue or Comment
+        uses: ./.github/workflows/scheduled-audit-notification.yml
+        with:
+          success: ${{ steps.audit.outcome == 'success' }}
+          res: ${{ env.RESULT }}
+    
