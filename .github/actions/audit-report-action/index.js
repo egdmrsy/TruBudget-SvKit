@@ -61,8 +61,7 @@ async function runAudit(projectName) {
     const data = [];
     let singleData = "";
     for(let i = 0; i < dataString.length; i++) {
-      core.info(`Character: ${dataString.charAt(i)}  - Matches empty: ${dataString.charAt(i).match(/\s/gm)}`);
-      if(!dataString.charAt(i).match(/\s/gm)) {
+      if(dataString.charAt(i).match(/\s/gm) === null) {
         singleData.concat(dataString.charAt(i));
       } else {
         if(singleData.length > 0) {
