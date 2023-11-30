@@ -1,0 +1,59 @@
+name: Daily Dependency Check for vulnerabilities
+on:
+  schedule:
+    - cron: '0 0 * * *'
+  workflow_dispatch:
+
+jobs:
+  audit: 
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - uses: actions/checkout@v4
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18.x
+      - name: Audit projects and create issue reports
+        uses: ./.github/actions/audit-report-action
+        with:
+          projects: [ frontend, api, blockchain, provisioning, e2e-test, excel-export-service, email-notification-service, storage-service, logging-service, migration]
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+
+
+
+        
+#        continue-on-error: true
+#        run: |
+#            npm ci --no-audit --legacy-peer-deps
+#            result="$(npm run audit -- --production | sed -e 's/\x1B\[[0-9;]*m//g' -e 's/>//g')"
+#            echo "RESULT<<EOF" >> $GITHUB_ENV
+#            echo $result >> $GITHUB_ENV
+#            echo "EOF" >> $GITHUB_ENV
+#            echo $result
+#        shell: bash
+#      - uses: actions/checkout@v4
+#      - name: Create Issue or Comment
+#        env:
+#          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#          OUTCOME: ${{ steps.audit.outcome == 'success' }}
+#          RES: ${{ env.RESULT }}
+#        run: |
+#          number=$(gh issue list --search "Daily Audit Failed: $GITHUB_WORKFLOW" --limit 1 --json number -q .[].number)
+#
+#          echo $OUTCOME
+#          echo $RESULT
+#
+#          if [[ $number ]]; then
+#            if [[ $OUTCOME == "true" ]]; then
+#              gh issue close $number
+#            else
+#              gh issue comment $number \
+#                               --body "$RESULT"
+#            fi
+#          elif [[ $OUTCOME == "false" ]]; then
+#            gh issue create --title "Workflow failed: $GITHUB_WORKFLOW (#$GITHUB_RUN_NUMBER)" \
+#                            --body "$RESULT"
+#          fi
+    

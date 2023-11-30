@@ -1,0 +1,15 @@
+name: 'Audit Report'
+description: 'Run audit on projects and report vulnerabilities'
+inputs:
+    projects:
+      required: true
+    github-token:
+      required: true
+    github-context:
+      required: false
+      default: ${{ toJson(github) }}
+outputs:
+  success:
+runs:
+  using: 'node20'
+  main: 'index.js'
