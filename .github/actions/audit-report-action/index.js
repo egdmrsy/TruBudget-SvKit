@@ -42,7 +42,7 @@ async function runAudit(projectName) {
     core.setFailed(result.stderr);
   }
 
-  const resultStripped = `\`\`\`\n${stripAnsi(this.stdout)}\n\`\`\``;
+  const resultStripped = `\`\`\`\n${stripAnsi(result.stdout)}\n\`\`\``;
 
   if(result.status === 1) {
     // npm audit returns 1 if vulnerabilities are found 
