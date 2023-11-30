@@ -55,8 +55,6 @@ jobs:
           echo $number
           echo $OUTCOME
           echo $RESULT
-          echo $ {{env.RESULT}}
-          echo $ {{steps.audit.outcome}}
 
           if [[ $number ]]; then
             if [[ $OUTCOME == "true" ]]; then
@@ -67,6 +65,6 @@ jobs:
             fi
           elif [[ $OUTCOME == "false" ]]; then
             gh issue create --title "Workflow failed: $GITHUB_WORKFLOW (#$GITHUB_RUN_NUMBER)" \
-                            --body "  $RES   See [$GITHUB_WORKFLOW #$GITHUB_RUN_NUMBER](https://github.com/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID)."
+                            --body "  $RESULT   See [$GITHUB_WORKFLOW #$GITHUB_RUN_NUMBER](https://github.com/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID)."
           fi
     
