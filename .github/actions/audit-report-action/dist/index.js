@@ -30874,7 +30874,7 @@ async function runAudit(projectName) {
       if(dataString.charAt(i).match(/\s/gm) == null) {
         singleData = singleData.concat(dataString.charAt(i));
       } else {
-          if(i < dataString.length - 1 && dataString.dataString.charAt(i+1).match(/\s/gm) == null && dataString.charAt(i-1).match(/\s/gm) == null) {
+          if(i < dataString.length - 1 && dataString.charAt(i+1).match(/\s/gm) == null && dataString.charAt(i-1).match(/\s/gm) == null) {
             singleData = singleData.concat(dataString.charAt(i));
           } else {
             if(singleData.length > 0) {
