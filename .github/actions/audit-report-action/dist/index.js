@@ -30838,10 +30838,20 @@ async function runAudit(projectName) {
     encoding: 'utf-8',
     maxBuffer: SPAWN_PROCESS_BUFFER_SIZE
   });
-  core.info(`Audit result: ${result}`);
+  if(result.status === null) {
+    core.setFailed("Audit process was killed");
+  }
+  if(result.stderr && result.stderr.length > 0) {
+    core.setFailed(result.stderr);
+  }
+
+  result = child_process.spawnSync("npm", ["run", "audit", "--", "--production"], {
+    encoding: 'utf-8',
+    maxBuffer: SPAWN_PROCESS_BUFFER_SIZE
+  });
   core.info(`Audit output: ${result.output}`);
   core.info(`Audit stdout: ${result.stdout}`);
-  core.info(`Audit stdout: ${result.status}`);
+  core.info(`Audit status: ${result.status}`);
   
   result = child_process.spawnSync(auditCommand, {
     encoding: 'utf-8',
