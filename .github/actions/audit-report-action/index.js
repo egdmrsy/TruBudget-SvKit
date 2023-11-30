@@ -56,8 +56,8 @@ async function runAudit(projectName) {
     let resultStripped = stripAnsi(result.stdout);
     resultStripped = resultStripped.replace(/(\r\n|\n|\r)/gm, "");
     const results = resultStripped.split('npm audit security report');
-
-    core.info(`Audit stdout: ${results[1]}`);
+    const noWhiteSpace = results[1].replace(/\s/g, '');
+    core.info(`Audit stdout: ${noWhiteSpace}`);
   }
   process.chdir('..');
 
