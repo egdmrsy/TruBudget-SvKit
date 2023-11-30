@@ -25,15 +25,21 @@ async function runAudit(projectName) {
   core.info(`Current working directory: ${process.cwd()}`);
 
   const auditCommand = "npm ci --no-audit --legacy-peer-deps && npm run audit -- --production";
-  const result = child_process.spawnSync(auditCommand, {
+  let result = child_process.spawnSync("npm", ["ci", "--no-audit", "--legacy-peer-deps"], {
     encoding: 'utf-8',
-    maxBuffer: SPAWN_PROCESS_BUFFER_SIZE,
+    maxBuffer: SPAWN_PROCESS_BUFFER_SIZE
   });
-
   core.info(`Audit result: ${result}`);
   core.info(`Audit output: ${result.output}`);
   core.info(`Audit stdout: ${result.stdout}`);
   core.info(`Audit stdout: ${result.status}`);
+  
+  result = child_process.spawnSync(auditCommand, {
+    encoding: 'utf-8',
+    maxBuffer: SPAWN_PROCESS_BUFFER_SIZE,
+  });
+
+  
 
   if(result.error) {
     
