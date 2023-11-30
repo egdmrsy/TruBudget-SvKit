@@ -7,9 +7,6 @@ on:
       res:
         type: string
         required: true
-      res2: 
-        type: string
-        required: true
 
 jobs:
   notify-if-needed:
@@ -26,7 +23,6 @@ jobs:
           echo $number
           echo ${{ inputs.success }}
           echo ${{ inputs.res }}
-          echo ${{ inputs.res2 }}
 
           if [[ $number ]]; then
             if [[ "${{ inputs.success }}" == "true" ]]; then
@@ -37,5 +33,5 @@ jobs:
             fi
           elif [[ "${{ inputs.success }}" == "false" ]]; then
             gh issue create --title "Workflow failed: $GITHUB_WORKFLOW (#$GITHUB_RUN_NUMBER)" \
-                            --body "  ${{ inputs.res }}   ${{ inputs.res2 }}   See [$GITHUB_WORKFLOW #$GITHUB_RUN_NUMBER](https://github.com/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID)."
+                            --body "  ${{ inputs.res }}   See [$GITHUB_WORKFLOW #$GITHUB_RUN_NUMBER](https://github.com/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID)."
           fi
