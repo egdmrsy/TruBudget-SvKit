@@ -42,6 +42,7 @@ jobs:
             echo "RESULT<<EOF" >> $GITHUB_ENV
             echo $result >> $GITHUB_ENV
             echo "EOF" >> $GITHUB_ENV
+            echo "$RESULT"
         shell: bash
       - uses: actions/checkout@v4
       - name: Create Issue or Comment
