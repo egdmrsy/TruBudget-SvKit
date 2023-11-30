@@ -30868,14 +30868,15 @@ async function runAudit(projectName) {
     resultStripped = resultStripped.replace(/[^a-zA-Z0-9\.\?\/\:\-\|\!\s]/gm, "");
     const dataString = resultStripped.split('npm audit security report')[1].trim();
     const data = [];
-    let singleData = '';
+    let singleData = "";
     for(let i = 0; i < dataString.length; i++) {
       if(!dataString.charAt(i).match(/\s/gm)) {
         singleData.concat(dataString.charAt(i));
       } else {
         if(singleData.length > 0) {
+          core.info(singleData);
           data.push(singleData);
-          singleData = '';
+          singleData = "";
         }
       }
     }
