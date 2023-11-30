@@ -8,7 +8,8 @@ jobs:
   audit: 
     runs-on: ubuntu-latest
     outputs:
-      result: ${{ steps.auditt.outputs.RESULT }}
+      res: ${{ steps.auditt.outputs.RESULT }}
+      res2: ${{ steps.auditt.outputs.result }}
     strategy:
       matrix:
         node-version: [ 18.x ]
@@ -52,4 +53,5 @@ jobs:
     uses: ./.github/workflows/scheduled-audit-notification.yml
     with:
       success: ${{ needs.audit.result == 'success' }}
-      result: ${{ needs.audit.result }}
+      res: ${{ needs.audit.res }}
+      res2: ${{ needs.audit.res2 }}

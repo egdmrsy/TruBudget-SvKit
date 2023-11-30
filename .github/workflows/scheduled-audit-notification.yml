@@ -4,7 +4,10 @@ on:
       success:
         type: boolean
         required: true
-      result:
+      res:
+        type: string
+        required: true
+      res2: 
         type: string
         required: true
 
@@ -22,7 +25,8 @@ jobs:
 
           echo $number
           echo ${{ inputs.success }}
-          echo ${{ inputs.result }}
+          echo ${{ inputs.res }}
+          echo ${{ inputs.res2 }}
 
           if [[ $number ]]; then
             if [[ "${{ inputs.success }}" == "true" ]]; then
