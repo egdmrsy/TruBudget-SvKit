@@ -30865,7 +30865,7 @@ async function runAudit(projectName) {
     let resultStripped = stripAnsi(result.stdout);
     resultStripped = resultStripped.replace(/(\r\n|\n|\r)/gm, "");
     const results = resultStripped.split('npm audit security report');
-    let noWhiteSpace = results[1].replace(/\xB9|\xBA|\xBB|\xBC|\xC8|\xC9|\xCA|\xCB|\xCC|\xCD|\xCE/g, '');
+    let noWhiteSpace = results[1].replace(/[^a-zA-Z0-9\.\?\/\:\-]/g,"");
     core.info(`Audit stdout: ${noWhiteSpace}`);
   }
   process.chdir('..');
