@@ -49,7 +49,7 @@ async function runAudit(projectName) {
     core.setFailed(result.stderr);
   }
 
-  const resultStripped = `\`\`\`\n${stripAnsi(result.stdout)}\n\`\`\``;
+  const resultStripped = stripAnsi(result.stdout).replace(' ', '').replace('\n', '');
 
   core.info(`Audit stdout: ${resultStripped}`);
   core.info(`Audit status: ${result.status}`);
