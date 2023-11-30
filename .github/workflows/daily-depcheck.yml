@@ -7,8 +7,6 @@ on:
 jobs:
   audit: 
     runs-on: ubuntu-latest
-    outputs:
-      res: ${{ steps.teststep.outputs.outp }}
     strategy:
       matrix:
         node-version: [ 18.x ]
@@ -38,14 +36,10 @@ jobs:
         run: |
             npm ci --no-audit --legacy-peer-deps
             result="$(npm run audit -- --production | sed -e 's/\x1B\[[0-9;]*m//g' -e 's/>//g')"
-            echo "RESULT<<EOF" >> $GITHUB_ENV
-            echo $result >> $GITHUB_ENV
-            echo "EOF" >> $GITHUB_ENV
+            echo "RESULT<<EOF" >> $GITHUB_STEP_SUMMARY
+            echo $result >> $GITHUB_STEP_SUMMARY
+            echo "EOF" >> $GITHUB_STEP_SUMMARY
         shell: bash
-      - id: teststep
-        name: Create Issue or Comment
-        run: |
-            echo "outp=${{ env.RESULT }}" >> "$GITHUB_OUTPUT"
   scheduled-audit-notification:
     needs:
       - audit
@@ -53,4 +47,4 @@ jobs:
     uses: ./.github/workflows/scheduled-audit-notification.yml
     with:
       success: ${{ needs.audit.result == 'success' }}
-      res: ${{ needs.audit.res }}
+      res: "test"
