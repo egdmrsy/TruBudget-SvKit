@@ -40,12 +40,13 @@ jobs:
         run: |
             npm ci --no-audit --legacy-peer-deps
             result="$(npm run audit -- --production | sed -e 's/\x1B\[[0-9;]*m//g' -e 's/>//g')"
-            echo "RESULT<<EOF" >> $GITHUB_OUTPUT
-            echo $result >> $GITHUB_OUTPUT
-            echo "EOF" >> $GITHUB_OUTPUT
-            echo "TTTTTTTTTTTTTTTT"
-            echo "$GITHUB_OUTPUT"
+            echo "RESULT<<EOF" >> $GITHUB_ENV
+            echo $result >> $GITHUB_ENV
+            echo "EOF" >> $GITHUB_ENV
         shell: bash
+      - name: test save
+        run: |
+            echo "Result: ${{ env.RESULT }}"
   scheduled-audit-notification:
     needs:
       - audit
