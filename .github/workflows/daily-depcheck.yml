@@ -8,7 +8,7 @@ jobs:
   audit: 
     runs-on: ubuntu-latest
     outputs:
-      result: ${{ steps.audit.outputs.result }}
+      result: ${{ steps.auditt.outputs }}
     strategy:
       matrix:
         node-version: [ 18.x ]
@@ -34,9 +34,9 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
-      - id: audit
+      - id: auditt
         name: Audit project ${{ matrix.project }}
-        run: npm ci --no-audit --legacy-peer-deps && echo "result=$(npm run audit -- --production)" >> "$GITHUB_OUTPUT"
+        run: npm ci --no-audit --legacy-peer-deps && echo "$(npm run audit -- --production)" >> "$GITHUB_OUTPUT" && echo "$GITHUB_OUTPUT"
         shell: bash
   scheduled-audit-notification:
     needs:
