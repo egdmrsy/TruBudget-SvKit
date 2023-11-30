@@ -30857,8 +30857,8 @@ async function runAudit(projectName) {
   if(result.stderr && result.stderr.length > 0) {
     core.setFailed(result.stderr);
   }
-
-  const resultStripped = stripAnsi(result.stdout).replace(' ', '').replace('\n', '').replace('\r', '').replace('\t', '').replace('\v', '').replace('\f', '').replace('\b', '').replace('\s', '').replace('\w', '');
+  let resultStripped = stripAnsi(result.stdout);
+  resultStripped = resultStripped.replace(/(\r\n|\n|\r)/gm, "");
   core.info(`Contains new line? ${resultStripped.includes('\n')}`);
   core.info(`Audit stdout: ${resultStripped}`);
   core.info(`Audit status: ${result.status}`);
