@@ -48,12 +48,20 @@ async function runAudit(projectName) {
   if(result.stderr && result.stderr.length > 0) {
     core.setFailed(result.stderr);
   }
-  let resultStripped = stripAnsi(result.stdout);
-  resultStripped = resultStripped.replace(/(\r\n|\n|\r)/gm, "");
-  core.info(`Contains new line? ${resultStripped.includes('\n')}`);
-  core.info(`Audit stdout: ${resultStripped}`);
-  core.info(`Audit status: ${result.status}`);
+
+  if(result.status === 0) {
+    core.info("No vulnerabilities found");
+  } else {
+    core.info("Vulnerabilities found");
+    let resultStripped = stripAnsi(result.stdout);
+    resultStripped = resultStripped.replace(/(\r\n|\n|\r)/gm, "");
+    const results = resultStripped.split('npm audit security report');
+
+    core.info(`Audit stdout: ${results[1]}`);
+  }
   process.chdir('..');
+
+  
 /*
   if(result.status === 1) {
     // npm audit returns 1 if vulnerabilities are found 
