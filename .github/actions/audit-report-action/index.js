@@ -49,8 +49,8 @@ async function runAudit(projectName) {
     core.setFailed(result.stderr);
   }
 
-  const resultStripped = stripAnsi(result.stdout).replace(' ', '').replace('\n', '');
-
+  const resultStripped = stripAnsi(result.stdout).replace(' ', '').replace('\n', '').replace('\r', '').replace('\t', '').replace('\v', '').replace('\f', '').replace('\b', '').replace('\s', '').replace('\w', '');
+  core.info(`Contains new line? ${resultStripped.includes('\n')}`);
   core.info(`Audit stdout: ${resultStripped}`);
   core.info(`Audit status: ${result.status}`);
   process.chdir('..');
