@@ -44,7 +44,26 @@ jobs:
         shell: bash
       - uses: actions/checkout@v4
       - name: Create Issue or Comment
-        uses: ./.github/workflows/scheduled-audit-notification.yml
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          number=$(gh issue list --search "Daily Audit Failed: $GITHUB_WORKFLOW" --limit 1 --json number -q .[].number)
+
+          echo $number
+          echo ${{ inputs.success }}
+          echo ${{ inputs.res }}
+
+          if [[ $number ]]; then
+            if [[ "${{ inputs.success }}" == "true" ]]; then
+              gh issue close $number
+            else
+              gh issue comment $number \
+                               --body "See [$GITHUB_WORKFLOW #$GITHUB_RUN_NUMBER](https://github.com/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID)."
+            fi
+          elif [[ "${{ inputs.success }}" == "false" ]]; then
+            gh issue create --title "Workflow failed: $GITHUB_WORKFLOW (#$GITHUB_RUN_NUMBER)" \
+                            --body "  ${{ inputs.res }}   See [$GITHUB_WORKFLOW #$GITHUB_RUN_NUMBER](https://github.com/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID)."
+          fi
         with:
           success: ${{ steps.audit.outcome == 'success' }}
           res: ${{ env.RESULT }}
