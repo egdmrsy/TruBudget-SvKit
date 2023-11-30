@@ -46,25 +46,24 @@ jobs:
       - name: Create Issue or Comment
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          OUTCOME: ${{ steps.audit.outcome == 'success' }}
+          RES: ${{ env.RESULT }}
         run: |
           number=$(gh issue list --search "Daily Audit Failed: $GITHUB_WORKFLOW" --limit 1 --json number -q .[].number)
 
           echo $number
-          echo ${{ inputs.success }}
-          echo ${{ inputs.res }}
+          echo $OUTCOME
+          echo $RES
 
           if [[ $number ]]; then
-            if [[ "${{ inputs.success }}" == "true" ]]; then
+            if [[ "$OUTCOME" == "true" ]]; then
               gh issue close $number
             else
               gh issue comment $number \
                                --body "See [$GITHUB_WORKFLOW #$GITHUB_RUN_NUMBER](https://github.com/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID)."
             fi
-          elif [[ "${{ inputs.success }}" == "false" ]]; then
+          elif [[ "$OUTCOME" == "false" ]]; then
             gh issue create --title "Workflow failed: $GITHUB_WORKFLOW (#$GITHUB_RUN_NUMBER)" \
-                            --body "  ${{ inputs.res }}   See [$GITHUB_WORKFLOW #$GITHUB_RUN_NUMBER](https://github.com/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID)."
+                            --body "  $RES   See [$GITHUB_WORKFLOW #$GITHUB_RUN_NUMBER](https://github.com/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID)."
           fi
-        with:
-          success: ${{ steps.audit.outcome == 'success' }}
-          res: ${{ env.RESULT }}
     
