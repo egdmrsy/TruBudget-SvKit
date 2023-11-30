@@ -57,11 +57,11 @@ async function runAudit(projectName) {
     core.info("Vulnerabilities found");
     let resultStripped = stripAnsi(result.stdout);
     resultStripped = resultStripped.replace(/[^a-zA-Z0-9\.\?\/\:\-\|\!\s]/gm, "");
-    const result = resultStripped.split('npm audit security report')[1].trim();
+    const resultd = resultStripped.split('npm audit security report')[1].trim();
     const data = [];
-    for(let i = 0; i < result.length; i++) {
-      if(!result.charAt(i).match(/\s/gm)) {
-        data.push(result.charAt(i));
+    for(let i = 0; i < resultd.length; i++) {
+      if(!resultd.charAt(i).match(/\s/gm)) {
+        data.push(resultd.charAt(i));
       }
     }
 
@@ -93,17 +93,6 @@ function stripAnsi(string) {
   const pattern = [
     '[\\u001B\\u009B][[\\]()#;?]*(?:(?:(?:(?:;[-a-zA-Z\\d\\/#&.:=?%@~_]+)*|[a-zA-Z\\d]+(?:;[-a-zA-Z\\d\\/#&.:=?%@~_]*)*)?\\u0007)',
     '(?:(?:\\d{1,4}(?:;\\d{0,4})*)?[\\dA-PR-TZcf-ntqry=><~]))',
-    '\\u00B9',
-    '\\u00BA',
-    '\\u00BB',
-    '\\u00BC',
-    '\\u00C8',
-    '\\u00C9',
-    '\\u00CA',
-    '\\u00CB',
-    '\\u00CC',
-    '\\u00CD',
-    '\\u00CE'
     ].join('|');
 	return string.replace(new RegExp(pattern, 'g'), '');
 }
