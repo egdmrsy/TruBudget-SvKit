@@ -52,7 +52,6 @@ jobs:
         run: |
           number=$(gh issue list --search "Daily Audit Failed: $GITHUB_WORKFLOW" --limit 1 --json number -q .[].number)
 
-          echo $number
           echo $OUTCOME
           echo $RESULT
 
@@ -61,10 +60,10 @@ jobs:
               gh issue close $number
             else
               gh issue comment $number \
-                               --body $RESULT
+                               --body "$RESULT"
             fi
           elif [[ $OUTCOME == "false" ]]; then
             gh issue create --title "Workflow failed: $GITHUB_WORKFLOW (#$GITHUB_RUN_NUMBER)" \
-                            --body $RESULT
+                            --body "$RESULT"
           fi
     
