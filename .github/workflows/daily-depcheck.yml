@@ -7,6 +7,8 @@ on:
 jobs:
   audit: 
     runs-on: ubuntu-latest
+    outputs:
+      result: ${{ steps.auditt.outputs.RESULT }}
     strategy:
       matrix:
         node-version: [ 18.x ]
@@ -37,10 +39,11 @@ jobs:
         run: |
             npm ci --no-audit --legacy-peer-deps
             result="$(npm run audit -- --production | sed -e 's/\x1B\[[0-9;]*m//g' -e 's/>//g')"
-            echo "RESULT_ENV_VAR<<EOF" >> $GITHUB_OUTPUT
+            echo "RESULT<<EOF" >> $GITHUB_OUTPUT
             echo $result >> $GITHUB_OUTPUT
             echo "EOF" >> $GITHUB_OUTPUT
-            echo $GITHUB_OUTPUT
+            echo "TTTTTTTTTTTTTTTT"
+            echo "$GITHUB_OUTPUT"
         shell: bash
   scheduled-audit-notification:
     needs:
