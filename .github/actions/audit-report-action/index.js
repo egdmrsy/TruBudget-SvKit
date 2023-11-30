@@ -48,6 +48,8 @@ async function runAudit(projectName) {
     core.info("No vulnerabilities found");
   } else {
     core.info("Vulnerabilities found");
+    core.info(result.output.split("Node security advisories: ")[1]);
+    core.info(result.output.split("Node security advisories: ")[1].split(",")[1]);
     let resultStripped = stripAnsi(result.stdout);
     resultStripped = resultStripped.replace(/[^a-zA-Z0-9\.\?\/\:\-\|\!\s]/gm, "");
     const dataString = resultStripped.split('npm audit security report')[1].trim();
