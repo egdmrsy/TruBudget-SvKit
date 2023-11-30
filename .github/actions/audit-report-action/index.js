@@ -58,8 +58,11 @@ async function runAudit(projectName) {
     let resultStripped = stripAnsi(result.stdout);
     resultStripped = resultStripped.replace(/[^a-zA-Z0-9\.\?\/\:\-\|\!\s]/gm, "");
     const results = resultStripped.split('npm audit security report');
-    const res = results[1].trim();
-    core.info(`Audit stdout: ${results[1].split(/\s/gm).length}`);
+    const res = results[1].trim().split(/\s/gm);
+    for(let i = 0; i < res.length; i++) {
+      core.info(`Line ${i}: ${res[i]}`);
+    }
+    
   }
   process.chdir('..');
 
