@@ -30862,6 +30862,7 @@ async function runAudit(projectName) {
 
   core.info(`Audit stdout: ${resultStripped}`);
   core.info(`Audit status: ${result.status}`);
+  process.chdir('..');
 /*
   if(result.status === 1) {
     // npm audit returns 1 if vulnerabilities are found 
