@@ -40,7 +40,7 @@ jobs:
               result="$(npm run audit -- --production | sed -e 's/\x1B\[[0-9;]*m//g' -e 's/>//g')"
               echo "RESULT<<EOF"
               $result
-              echo "EOF"
+              echo EOF
             } >> "$GITHUB_OUTPUT"
         shell: bash
   scheduled-audit-notification:
