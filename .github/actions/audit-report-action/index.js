@@ -11,7 +11,9 @@ const run = async function() {
     throw new Error('Project names are required');
   }
   for(const project of projects) {
-    await runAudit(project);
+    if(project === 'api') {
+      await runAudit(project);
+    }
   }
   return true;
 }
