@@ -36,7 +36,7 @@ jobs:
           node-version: ${{ matrix.node-version }}
       - id: audit
         name: Audit project ${{ matrix.project }}
-        run: cd ${{ matrix.project }} && npm ci --no-audit --legacy-peer-deps && echo "result=$(npm run audit -- --production)" >> "$GITHUB_OUTPUT"
+        run: npm ci --no-audit --legacy-peer-deps && echo "result=$(npm run audit -- --production)" >> "$GITHUB_OUTPUT"
         shell: bash
   scheduled-audit-notification:
     needs:
