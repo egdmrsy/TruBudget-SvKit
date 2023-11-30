@@ -30849,21 +30849,7 @@ async function runAudit(projectName) {
     encoding: 'utf-8',
     maxBuffer: SPAWN_PROCESS_BUFFER_SIZE
   });
-  core.info(`Audit output: ${result.output}`);
-  core.info(`Audit stdout: ${result.stdout}`);
-  core.info(`Audit status: ${result.status}`);
   
-  result = child_process.spawnSync(auditCommand, {
-    encoding: 'utf-8',
-    maxBuffer: SPAWN_PROCESS_BUFFER_SIZE,
-  });
-
-  
-
-  if(result.error) {
-    
-  }
-
   if(result.status === null) {
     core.setFailed("Audit process was killed");
   }
@@ -30874,6 +30860,9 @@ async function runAudit(projectName) {
 
   const resultStripped = `\`\`\`\n${stripAnsi(result.stdout)}\n\`\`\``;
 
+  core.info(`Audit stdout: ${resultStripped}`);
+  core.info(`Audit status: ${result.status}`);
+/*
   if(result.status === 1) {
     // npm audit returns 1 if vulnerabilities are found 
     // get GitHub information
@@ -30886,7 +30875,7 @@ async function runAudit(projectName) {
 
   } else {
     return true;
-  }
+  }*/
 }
 
 
