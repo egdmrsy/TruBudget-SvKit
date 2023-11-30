@@ -30869,8 +30869,10 @@ async function runAudit(projectName) {
     const dataString = resultStripped.split('npm audit security report')[1].trim();
     const data = [];
     let singleData = "";
+
     for(let i = 0; i < dataString.length; i++) {
-      if(dataString.charAt(i).match(/\s/gm) === null) {
+      core.info(`Character: ${dataString.charAt(i)} - matches ${dataString.charAt(i).match(/\s/gm) == null}`);
+      if(dataString.charAt(i).match(/\s/gm) == null) {
         singleData.concat(dataString.charAt(i));
       } else {
         if(singleData.length > 0) {
