@@ -30863,10 +30863,10 @@ async function runAudit(projectName) {
   } else {
     core.info("Vulnerabilities found");
     let resultStripped = stripAnsi(result.stdout);
-    resultStripped = resultStripped.replace(/(\r\n|\n|\r)/gm, "");
+    resultStripped = resultStripped.replace(/[^a-zA-Z0-9\.\?\/\:\-\|\!\s]/gm, "");
     const results = resultStripped.split('npm audit security report');
-    let noWhiteSpace = results[1].replace(/[^a-zA-Z0-9\.\?\/\:\-\|\!\s]/gm, "");
-    core.info(`Audit stdout: ${noWhiteSpace}`);
+    const res = results[1].trim();
+    core.info(`Audit stdout: ${results[1].split(/\s/gm).length}`);
   }
   process.chdir('..');
 
