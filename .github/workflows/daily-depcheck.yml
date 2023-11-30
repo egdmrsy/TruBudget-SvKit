@@ -33,10 +33,11 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
       - uses: ./.github/workflows/audit
-  scheduled-job-notification:
+  scheduled-audit-notification:
     needs:
       - audit
     if: always()
-    uses: ./.github/workflows/reusable-scheduled-job-notification.yml
+    uses: ./.github/workflows/scheduled-audit-notification.yml
     with:
       success: ${{ needs.analyze.result == 'success' }}
+      result: ${{ needs.analyze.outputs.result }}

@@ -2,6 +2,9 @@ name: "Audit"
 runs:
   using: "composite"
   steps:
-    - name: Audit project ${{ matrix.project }}
-      run: cd ${{ matrix.project }} && npm ci --no-audit --legacy-peer-deps && npm run audit -- --production
+    - id: audit
+      name: Audit project ${{ matrix.project }}
+      run: cd ${{ matrix.project }} && npm ci --no-audit --legacy-peer-deps && echo "result=$(npm run audit -- --production)" >> "$GITHUB_OUTPUT"
       shell: bash
+  outputs:
+    result: ${{ steps.audit.outputs.result}}
