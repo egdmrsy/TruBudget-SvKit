@@ -8,8 +8,6 @@ inputs:
     github-context:
       required: false
       default: ${{ toJson(github) }}
-outputs:
-  success:
 runs:
   using: 'node20'
   main: 'index.js'
