@@ -63,10 +63,9 @@ async function runAudit(projectName) {
 
     for(let i = 0; i < dataString.length; i++) {
       if(dataString.charAt(i).match(/\s/gm) == null) {
-        singleData.concat(dataString.charAt(i));
+        singleData = singleData.concat(dataString.charAt(i));
         continue;
       }
-      core.info(`Single data: ${singleData}`);
       if(singleData.length > 0) {
         data.push(singleData);
         singleData = "";
