@@ -37,8 +37,8 @@ jobs:
         run: |
             npm ci --no-audit --legacy-peer-deps && 
             echo "TEST={ 
-              echo 'RESPONSE<<EOF'
-              echo "$(npm run audit -- --production)" | sed -e 's/\x1B\[[0-9;]*m//g' -e 's/>//g' 
+              echo 'RESPONSE<<EOF' \
+              echo "$(npm run audit -- --production)" | sed -e 's/\x1B\[[0-9;]*m//g' -e 's/>//g' \
               echo EOF 
             }" >> "$GITHUB_OUTPUT"
         shell: bash
