@@ -5,7 +5,7 @@ const stripAnsi = require('strip-ansi');
 
 const SPAWN_PROCESS_BUFFER_SIZE = 10485760
 
-async function run() {
+const run = async function() {
 
   const projects = core.getInput('projects').split(',');
   if(!projects) {
@@ -14,6 +14,7 @@ async function run() {
   for(const project of projects) {
     await runAudit(project);
   }
+  return true;
 }
 
 async function runAudit(projectName) {
@@ -59,4 +60,4 @@ async function runAudit(projectName) {
   }
 }
 
-await run();
+run();
