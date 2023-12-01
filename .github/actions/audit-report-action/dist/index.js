@@ -49,7 +49,7 @@ async function createOrUpdateIssues(octokit, repo, vulnerabilityIdProjectMapping
 
 async function updateExistingIssue(updateFunc, repo, issue, affectedProjects) {
   const issueNumber = issue.number;
-  const issueBody = issue.body;
+  const issueBody = issue.body.replace(/[0-9]{1,2}\/[0-9]{1,2}\/[0-9]{4}/gm, "abc");
   await updateFunc({
     ...repo,
     issue_number: issueNumber,
@@ -78,7 +78,7 @@ async function createNewIssue(createFunc, repo, vId, vName, vTitle, vSeverity, v
           <td>${vName}</td>
           <td>${vTitle}</td>
           <td>${vSeverity}</td>
-          <td>[${vUrl}][${vUrl}]</td>
+          <td>[${vUrl}](${vUrl})</td>
           <td>${vEffects.toString()}</td>
         </tr>
       </tbody>
@@ -29031,7 +29031,7 @@ __nccwpck_require__.r(__webpack_exports__);
 /* harmony export */ });
 function extractVulnerabilities(resultJsonVulnerabilities) {
   return Object.entries(resultJsonVulnerabilities).map(([key, value]) => {
-    if (!value.isDirect) {
+    if (!value.isDirect && Array.isArray(value.via) && typeof value.via[0] == 'object') {
       return value;
     }
   }).filter((value) => { return !!value; });

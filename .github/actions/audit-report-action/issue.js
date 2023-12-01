@@ -38,7 +38,7 @@ export async function createOrUpdateIssues(octokit, repo, vulnerabilityIdProject
 
 async function updateExistingIssue(updateFunc, repo, issue, affectedProjects) {
   const issueNumber = issue.number;
-  const issueBody = issue.body;
+  const issueBody = issue.body.replace(/[0-9]{1,2}\/[0-9]{1,2}\/[0-9]{4}/gm, "abc");
   await updateFunc({
     ...repo,
     issue_number: issueNumber,
@@ -67,7 +67,7 @@ async function createNewIssue(createFunc, repo, vId, vName, vTitle, vSeverity, v
           <td>${vName}</td>
           <td>${vTitle}</td>
           <td>${vSeverity}</td>
-          <td>[${vUrl}][${vUrl}]</td>
+          <td>[${vUrl}](${vUrl})</td>
           <td>${vEffects.toString()}</td>
         </tr>
       </tbody>

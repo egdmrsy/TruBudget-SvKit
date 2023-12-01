@@ -21,6 +21,7 @@
     "Daniel Arnauer <daniel.arnauer@accenture.com>"
   ],
   "dependencies": {
+    "@fastify/jwt": "^6.7.1",
     "@babel/runtime": "^7.21.5",
     "@date-io/date-fns": "^2.16.0",
     "@date-io/dayjs": "^2.16.0",

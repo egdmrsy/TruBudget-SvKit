@@ -27,6 +27,7 @@
     "lint:fix": "eslint src --fix"
   },
   "dependencies": {
+    "@fastify/jwt": "^6.7.1",
     "axios": "^1.6.2",
     "better-npm-audit": "^3.4.0",
     "trubudget-logging-service": "^1.1.3"
