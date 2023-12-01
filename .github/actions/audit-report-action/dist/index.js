@@ -30842,12 +30842,11 @@ const run = async function() {
 }
 
 async function runAudit(projectName) {
-  console.log(`Auditing ${projectName}...`);
+  core.info(`\n Auditing ${projectName}...`);
   if (!projectName) {
     throw new Error('A project name is required');
   }
   process.chdir(projectName);
-  core.info(`Current working directory: ${process.cwd()}`);
 
   let result = child_process.spawnSync("npm", ["ci", "--no-audit", "--legacy-peer-deps"], {
     encoding: 'utf-8',
@@ -30920,21 +30919,39 @@ async function createOrUpdateIssues(vulnerabilityProjectMapping, discoveredVulne
 }
 
 async function createNewIssue(createFunc, vId, vName, vTitle, vSeverity, vUrl, vEffects, affectedProjects, issueTitle) {
-  const newIssueBody = `\
-    ## Last checked date: \
-    ${new Date(Date.now()).toLocaleDateString()} \
-    \
-    ## Vulnerability Information\
-    | ID | Name | Title | Severity | URL | Effects | \
-    | -- | ---- | ----- | -------- | --- | ------- | \
-    | ${vId}| ${vName} | ${vTitle} | ${vSeverity} | ${vUrl} | ${vEffects}\
-  
-    \
-    ## Affected Projects\
+  let newIssueBody = `\
+    <h2 id="last-checked-date-">Last checked date:</h2>
+    <p>${new Date(Date.now()).toLocaleDateString()}</p>
+    <h2 id="vulnerability-information">Vulnerability Information</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Name</th>
+          <th>Title</th>
+          <th>Severity</th>
+          <th>URL</th>
+          <th>Effects</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>${vId}</td>
+          <td>${vName}</td>
+          <td>${vTitle}</td>
+          <td>${vSeverity}</td>
+          <td>${vUrl}</td>
+          <td>${vEffects}</td>
+        </tr>
+      </tbody>
+    </table>
+    <h2 id="affected-projects">Affected Projects</h2>
     `
+  newIssueBody = newIssueBody.concat("<ul>");
   for(const affectedProject of affectedProjects) {
-    newIssueBody.concat(`- ${affectedProject} \n`);
+    newIssueBody = newIssueBody.concat(`<li>${affectedProject}</li>`);
   }
+  newIssueBody = newIssueBody.concat("</ul>");
 
   await createFunc({
     ...github.context.repo,
