@@ -31,7 +31,7 @@ async function runAudit(projectName) {
     maxBuffer: SPAWN_PROCESS_BUFFER_SIZE
   });
 
-  result = child_process.spawnSync("npm", ["run", "audit", "--", "--production"], {
+  result = child_process.spawnSync("npm", ["audit", "--json", "--omit=dev"], {
     encoding: 'utf-8',
     maxBuffer: SPAWN_PROCESS_BUFFER_SIZE
   });
@@ -44,44 +44,15 @@ async function runAudit(projectName) {
     core.setFailed(result.stderr);
   }
 
+  const json = JSON.parse(result.stdout);
+
+  core.info(json);
+
   if(result.status === 0) {
     core.info("No vulnerabilities found");
   } else {
     core.info("Vulnerabilities found");
-    core.info(result.output[2].split("Node security advisories: ")[1]);
-    core.info(result.output[2].split("Node security advisories: ")[1].split(",")[1]);
-    let resultStripped = stripAnsi(result.stdout);
-    resultStripped = resultStripped.replace(/[^a-zA-Z0-9\.\?\/\:\-\|\!\s]/gm, "");
-    const dataString = resultStripped.split('npm audit security report')[1].trim();
-    core.info(dataString);
-    const data = [];
-    let singleData = "";
-
-    for(let i = 0; i < dataString.length; i++) {
-      if(dataString.charAt(i).match(/\s/gm) == null) {
-        singleData = singleData.concat(dataString.charAt(i));
-        if(i === dataString.length - 1) {
-          data.push(singleData);
-        }
-      } else {
-          if(i < dataString.length - 1 && dataString.charAt(i+1).match(/\s/gm) == null && dataString.charAt(i-1).match(/\s/gm) == null) {
-            singleData = singleData.concat(dataString.charAt(i));
-          } else {
-            if(singleData.length > 0) {
-              data.push(singleData);
-              singleData = "";
-            }
-          }
-      }
-    }
-    const id = data[7];
-    const module = data[8];
-    const description = data[9];
-    const paths = data[10];
-    const severity = data[11];
-    const url = data[12];
-    const excluded = data[13];
-
+    
     process.chdir('..');
   }
 }
