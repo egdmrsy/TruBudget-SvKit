@@ -30857,34 +30857,15 @@ async function runAudit(projectName) {
 
   
 
-  const loop = (data, parent) => Object.entries(data).map(([key, value]) => {
+  const loop = (data) => Object.entries(data).map(([key, value]) => {
     core.info(`key: ${key} - value: ${value}`);
-    /*
-    let vulnerability = parent? {
-      parentId: parent
-    } : {}
-    if (typeof value === 'object' && !Array.isArray(value)) {
-      vulnerability = {
-        ...additional,
-        selectable: false,
-        children: loop(value, key)
-        
-       }
-     }else{
-       additional.isLeaf = true
-     }
-     
-     return {
-       id: key,
-       key,
-       title: key,
-       ...additional
-     }*/
+    if (!value.isDirect) {
+      return value;
+    }
   });
 
-  //const dat = loop(auditRawJson.vulnerabilities);
-  loop(auditRawJson.vulnerabilities);
-  //core.info(JSON.stringify(dat));
+  const dat = loop(auditRawJson.vulnerabilities);
+  core.info(JSON.stringify(dat));
 
   if(result.status === 0) {
     core.info("No vulnerabilities found");
