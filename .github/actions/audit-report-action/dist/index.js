@@ -30905,6 +30905,7 @@ async function createOrUpdateIssues(vulnerabilityProjectMapping, discoveredVulne
       const issueBody = issue.body_html;
       core.info(issue.body_html);
       core.info(issue.body_text);
+      core.info(issue.body);
       await octokit.rest.issues.update({
         ...github.context.repo,
         issue_number: issueNumber,
