@@ -30855,17 +30855,24 @@ async function runAudit(projectName) {
 
   const auditRawJson = JSON.parse(result.stdout);
 
-  
-
   const loop = (data) => Object.entries(data).map(([key, value]) => {
     core.info(`key: ${key} - value: ${value}`);
     if (!value.isDirect) {
       return value;
     }
-  });
+  })
+
+  const es = Object.entries(data).reduce((acc, [currentKey, currentValue], curInd) => {
+
+    core.info(typeof currentValue.isDirect);
+    if (!currentValue.isDirect) {
+      return acc.push(value)
+    }
+  }, [])
 
   const dat = loop(auditRawJson.vulnerabilities);
   core.info(JSON.stringify(dat));
+  core.info(JSON.stringify(es));
 
   if(result.status === 0) {
     core.info("No vulnerabilities found");
@@ -30892,15 +30899,6 @@ async function runAudit(projectName) {
     return true;
   }*/
 
-
-
-function stripAnsi(string) {
-  const pattern = [
-    '[\\u001B\\u009B][[\\]()#;?]*(?:(?:(?:(?:;[-a-zA-Z\\d\\/#&.:=?%@~_]+)*|[a-zA-Z\\d]+(?:;[-a-zA-Z\\d\\/#&.:=?%@~_]*)*)?\\u0007)',
-    '(?:(?:\\d{1,4}(?:;\\d{0,4})*)?[\\dA-PR-TZcf-ntqry=><~]))',
-    ].join('|');
-	return string.replace(new RegExp(pattern, 'g'), '');
-}
 
 run();
 })();
