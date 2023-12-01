@@ -75,7 +75,7 @@ async function createNewIssue(createFunc, repo, vId, vName, vTitle, vSeverity, v
           <td>${vName}</td>
           <td>${vTitle}</td>
           <td>${vSeverity}</td>
-          <td>[${vUrl}](${vUrl})</td>
+          <td><a href="${vUrl}">${vUrl}</a></td>
           <td>${vEffects.toString()}</td>
         </tr>
       </tbody>
