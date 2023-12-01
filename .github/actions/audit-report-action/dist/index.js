@@ -30853,17 +30853,18 @@ async function runAudit(projectName) {
     core.setFailed(result.stderr);
   }
 
-  const json = JSON.parse(result.stdout);
+  const auditRawJson = JSON.parse(result.stdout);
 
   
 
   const loop = (data, parent) => Object.entries(data).map(([key, value]) => {
-    
-    let additional = parent? {
+    core.info(`key: ${key} - value: ${value}`);
+    /*
+    let vulnerability = parent? {
       parentId: parent
     } : {}
     if (typeof value === 'object' && !Array.isArray(value)) {
-      additional = {
+      vulnerability = {
         ...additional,
         selectable: false,
         children: loop(value, key)
@@ -30878,12 +30879,12 @@ async function runAudit(projectName) {
        key,
        title: key,
        ...additional
-     }
+     }*/
   });
 
-  const dat = loop(json);
-
-  core.info(JSON.stringify(dat));
+  //const dat = loop(auditRawJson.vulnerabilities);
+  loop(auditRawJson.vulnerabilities);
+  //core.info(JSON.stringify(dat));
 
   if(result.status === 0) {
     core.info("No vulnerabilities found");
