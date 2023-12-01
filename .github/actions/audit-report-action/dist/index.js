@@ -30814,16 +30814,30 @@ const child_process = __nccwpck_require__(2081);
 const SPAWN_PROCESS_BUFFER_SIZE = 10485760
 
 const run = async function() {
-
   const projects = core.getInput('projects').split(',');
   if(!projects) {
     throw new Error('Project names are required');
   }
-  for(const project of projects) {
-    if(project === 'api') {
-      await runAudit(project);
+  const vulnerabilityProjectMapping = new Map();
+  const discoveredVulnerabilities = [];
+  for(const projectName of projects) {
+    const vulnerabilities = await runAudit(projectName);
+
+    for(const vulnerability of vulnerabilities) {
+      const vId = vulnerability.via.source;
+
+      if(!vulnerabilityProjectMapping.has(vId)){
+        discoveredVulnerabilities.push(vulnerability);
+        vulnerabilityProjectMapping.set(vId,[projectName]);
+      } else {
+        const addedProjectNames = vulnerabilityProjectMapping.get(vId);
+        addedProjectNames.push(projectName);
+        vulnerabilityProjectMapping.set(vId, addedProjectNames);
+      }
     }
   }
+
+  await createOrUpdateIssues(vulnerabilityProjectMapping, discoveredVulnerabilities);
   return true;
 }
 
@@ -30844,51 +30858,115 @@ async function runAudit(projectName) {
     encoding: 'utf-8',
     maxBuffer: SPAWN_PROCESS_BUFFER_SIZE
   });
-  
-  if(result.status === null) {
-    core.setFailed("Audit process was killed");
-  }
-
-  if(result.stderr && result.stderr.length > 0) {
-    core.setFailed(result.stderr);
-  }
 
   const auditRawJson = JSON.parse(result.stdout);
+  let vulnerabilities = [];
+  if (auditRawJson.metadata?.vulnerabilities?.total > 0) {
+    core.info("Vulnerabilities found");
+    vulnerabilities = extractVulnerabilities(auditRawJson.vulnerabilities);
+  } else {
+    core.info("No vulnerabilities found");
+  }
+  process.chdir("..");
+  return vulnerabilities;
+}
 
-  const auditJson = Object.entries(auditRawJson.vulnerabilities).map(([key, value]) => {
-    core.info(`key: ${key} - value: ${value}`);
+async function createOrUpdateIssues(vulnerabilityProjectMapping, discoveredVulnerabilities) {
+  const ctx = core.getInput('github_context');
+  const token = core.getInput('github_token', {required: true});
+  const octokit = github.getOctokit(token);
+
+  // Get all security issues
+  const { data: securityIssues} = await octokit.rest.issues.listForRepo(
+    {
+      ...github.context.repo,
+      state: 'open',
+      labels: ['security']
+    }
+  )
+
+  const vulnerabilityIssues = securityIssues
+    .filter(issue => issue.title.includes("Vulnerability Report:"));
+
+  // Clean up old issues if Vulnerability is not mentioned.
+  await closeOldIssues(octokit.rest.issues.update, vulnerabilityIssues, vulnerabilityProjectMapping);
+
+  for(const vulnerability of discoveredVulnerabilities) {
+    const vId = vulnerability.via.source;
+    const vName = vulnerability.via.name;
+    const issueTitle = `Vulnerability Report: ${vId} - ${vName}`;
+
+    const issue = vulnerabilityIssues
+    .filter(issue => issue.title === issueTitle)
+    .shift();
+
+    if (issue) {
+      // issue exists
+      // update the issue
+      const issueNumber = issue.number;
+      const issueBody = issue.body_html;
+      core.info(issue.body_html);
+      core.info(issue.body_text);
+      await octokit.rest.issues.update({
+        ...github.context.repo,
+        issue_number: issueNumber,
+        body: issueBody
+      });
+    } else {
+      // create new issue
+      const affectedProjects = vulnerabilityProjectMapping.get(vId);
+      await createNewIssue(octokit.rest.issues.create, vId, vName, vulnerability.via.title, vulnerability.via.severity, vulnerability.via.url, vulnerability.effects, affectedProjects, issueTitle);
+    }
+  }
+}
+
+async function createNewIssue(createFunc, vId, vName, vTitle, vSeverity, vUrl, vEffects, affectedProjects, issueTitle) {
+  const newIssueBody = `\
+    ## Last checked date: \
+    ${new Date(Date.now()).toLocaleDateString()} \
+    \
+    ## Vulnerability Information\
+    | ID | Name | Title | Severity | URL | Effects | \
+    | -- | ---- | ----- | -------- | --- | ------- | \
+    | ${vId}| ${vName} | ${vTitle} | ${vSeverity} | ${vUrl} | ${vEffects}\
+  
+    \
+    ## Affected Projects\
+    `
+  for(const affectedProject of affectedProjects) {
+    newIssueBody.concat(`- ${affectedProject} \n`);
+  }
+
+  await createFunc({
+    ...github.context.repo,
+    title: issueTitle,
+    body: newIssueBody,
+    labels: ["security"]
+  });
+
+}
+
+async function closeOldIssues(updateFunc, vulnerabilityIssues, vulnerabilityProjectMapping) {
+  for(const vulnerabilityIssue of vulnerabilityIssues) {
+    const issueVId = Number(vulnerabilityIssue.title.split(": ")[1].split(" - ")[0]);
+    if(!vulnerabilityProjectMapping.has(issueVId)){
+      // There is an open issue 
+      await updateFunc({
+        ...github.context.repo,
+        issue_number: vulnerabilityIssue.number,
+        state: 'closed'
+      })
+    }
+  }
+}
+
+function extractVulnerabilities(resultJsonVulnerabilities) {
+  return Object.entries(resultJsonVulnerabilities).map(([key, value]) => {
     if (!value.isDirect) {
       return value;
     }
   }).filter((value) => { return !!value; });
-
-  core.info(JSON.stringify(auditJson));
-
-  if(result.status === 0) {
-    core.info("No vulnerabilities found");
-  } else {
-    core.info("Vulnerabilities found");
-    
-    process.chdir('..');
-  }
 }
-
-  
-/*
-  if(result.status === 1) {
-    // npm audit returns 1 if vulnerabilities are found 
-    // get GitHub information
-    const ctx = JSON.parse(core.getInput('github_context'))
-    const token = core.getInput('github_token', {required: true});
-
-    console.log(resultStripped);
-    core.info(resultStripped);
-    return false;
-
-  } else {
-    return true;
-  }*/
-
 
 run();
 })();
