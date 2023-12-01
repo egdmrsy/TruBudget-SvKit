@@ -31032,7 +31032,7 @@ async function runAudit(projectName) {
     core.info("No vulnerabilities found");
   }
   process.chdir("..");
-  return vulnerabilities;
+  return vulnerabilityList;
 }
 run();
 })();
