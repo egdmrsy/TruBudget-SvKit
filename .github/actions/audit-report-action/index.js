@@ -53,7 +53,7 @@ async function runAudit(projectName) {
     }
   })
 
-  const es = Object.entries(data).reduce((acc, [currentKey, currentValue], curInd) => {
+  const es = Object.entries(auditRawJson.vulnerabilities).reduce((acc, [currentKey, currentValue], curInd) => {
 
     core.info(typeof currentValue.isDirect);
     if (!currentValue.isDirect) {
