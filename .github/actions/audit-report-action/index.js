@@ -46,7 +46,35 @@ async function runAudit(projectName) {
 
   const json = JSON.parse(result.stdout);
 
-  core.info(JSON.stringify(json.vulnerabilities));
+  
+
+  const loop = (data, parent) => Object.entries(data).map(([key, value]) => {
+    
+    let additional = parent? {
+      parentId: parent
+    } : {}
+    if (typeof value === 'object' && !Array.isArray(value)) {
+      additional = {
+        ...additional,
+        selectable: false,
+        children: loop(value, key)
+        
+       }
+     }else{
+       additional.isLeaf = true
+     }
+     
+     return {
+       id: key,
+       key,
+       title: key,
+       ...additional
+     }
+  });
+
+  const dat = loop(data);
+
+  core.info(JSON.stringify(dat));
 
   if(result.status === 0) {
     core.info("No vulnerabilities found");
