@@ -30881,7 +30881,7 @@ async function runAudit(projectName) {
      }
   });
 
-  const dat = loop(data);
+  const dat = loop(json);
 
   core.info(JSON.stringify(dat));
 
