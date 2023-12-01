@@ -23,11 +23,12 @@ export async function createOrUpdateIssues(octokit, repo, vulnerabilityIdProject
       const issueTitle = `Vulnerability Report: ${vId} - ${vName}`;
       const issue = vulnerabilityIssues.filter(issue => issue.title === issueTitle)[0];
 
+      const affectedProjects = vulnerabilityIdProjectMapping.get(vId);
+      
       if(issue) {
           //update issue
         await updateExistingIssue(octokit.rest.issues.update, repo, issue, affectedProjects);
       } else {
-        const affectedProjects = vulnerabilityIdProjectMapping.get(vId);
         await createNewIssue(octokit.rest.issues.create, repo, vId, vName, vTitle, vSeverity, vUrl, vEffects, affectedProjects, issueTitle);
       }
     }
