@@ -3,6 +3,8 @@ const github = require('@actions/github');
 const child_process = require('child_process');
 
 const SPAWN_PROCESS_BUFFER_SIZE = 10485760
+core.info(core.getInput("projects"));
+core.info(core.getInput("token"));
 
 const run = async function() {
   const projects = core.getInput('projects').split(',');
@@ -63,8 +65,7 @@ async function runAudit(projectName) {
 }
 
 async function createOrUpdateIssues(vulnerabilityProjectMapping, discoveredVulnerabilities) {
-  const ctx = core.getInput('github_context');
-  const token = core.getInput('github_token', {required: true});
+  const token = core.getInput('token');
   const octokit = github.getOctokit(token);
 
   // Get all security issues

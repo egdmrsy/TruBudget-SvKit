@@ -3,11 +3,8 @@ description: 'Run audit on projects and report vulnerabilities'
 inputs:
     projects:
       required: true
-    github-token:
+    token:
       required: true
-    github-context:
-      required: false
-      default: ${{ toJson(github) }}
 runs:
   using: 'node20'
   main: 'dist/index.js'
