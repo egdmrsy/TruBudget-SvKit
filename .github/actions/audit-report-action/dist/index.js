@@ -30897,6 +30897,7 @@ async function createOrUpdateIssues(vulnerabilityProjectMapping, discoveredVulne
     const issue = vulnerabilityIssues
     .filter(issue => issue.title === issueTitle)
     .shift();
+    vulnerabilityIssues.forEach(v => core.info(JSON.stringify(v)));
 
     if (issue) {
       // issue exists
