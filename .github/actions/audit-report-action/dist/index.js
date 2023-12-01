@@ -35,7 +35,7 @@ async function createOrUpdateIssues(octokit, repo, vulnerabilityIdProjectMapping
       const issue = vulnerabilityIssues.filter(issue => issue.title === issueTitle)[0];
 
       const affectedProjects = vulnerabilityIdProjectMapping.get(vId);
-      
+
       if(issue) {
           //update issue
         await updateExistingIssue(octokit.rest.issues.update, repo, issue, affectedProjects);
@@ -50,11 +50,18 @@ async function createOrUpdateIssues(octokit, repo, vulnerabilityIdProjectMapping
 
 async function updateExistingIssue(updateFunc, repo, issue, affectedProjects) {
   const issueNumber = issue.number;
-  const issueBody = issue.body.replace(/[0-9]{1,2}\/[0-9]{1,2}\/[0-9]{4}/gm, "abc");
+  let issueBody = issue.body.replace(/[0-9]{1,2}\/[0-9]{1,2}\/[0-9]{4}/gm, new Date(Date.now()).toLocaleDateString());
+  let appendClosingListTag = false;
+  for(const affectedProject of affectedProjects) {
+    const element = `<li>${affectedProject}</li>`;
+    if(!issueBody.includes(element)) {
+      issueBody = issueBody.replace(/\<\/ul\>/gm, '').concat(element);
+    }
+  }
   await updateFunc({
     ...repo,
     issue_number: issueNumber,
-    body: issueBody
+    body: appendClosingListTag ? issueBody.concat('</ul>'): issueBody
   });
 }
 
