@@ -46,7 +46,7 @@ async function runAudit(projectName) {
 
   const json = JSON.parse(result.stdout);
 
-  core.info(json.vulnerabilities);
+  core.info(JSON.stringify(json.vulnerabilities));
 
   if(result.status === 0) {
     core.info("No vulnerabilities found");
