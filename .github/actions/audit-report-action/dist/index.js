@@ -30860,7 +30860,7 @@ async function runAudit(projectName) {
     if (!value.isDirect) {
       return value;
     }
-  }).filter((value) => { core.info(value);value != null; });
+  }).filter((value) => { return !!value; });
 
   core.info(JSON.stringify(auditJson));
 
