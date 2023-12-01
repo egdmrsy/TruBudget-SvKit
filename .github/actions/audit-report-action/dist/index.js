@@ -30818,6 +30818,7 @@ const run = async function() {
   if(!projects) {
     throw new Error('Project names are required');
   }
+
   const vulnerabilityProjectMapping = new Map();
   const discoveredVulnerabilities = [];
   for(const projectName of projects) {
@@ -30895,14 +30896,7 @@ async function createOrUpdateIssues(vulnerabilityProjectMapping, discoveredVulne
     const issueTitle = `Vulnerability Report: ${vId} - ${vName}`;
 
     const issue = vulnerabilityIssues
-    .filter(issue => issue.title === issueTitle)
-    .shift();
-    vulnerabilityIssues.forEach(v => {
-      core.info(v.title);
-      core.info(issueTitle);
-      core.info(`Double equals: ${v.title == issueTitle}`);
-      core.info(`Triple equals: ${v.title === issueTitle}`);
-    });
+    .filter(issue => issue.title === issueTitle)[0];
 
     if (issue) {
       // issue exists
