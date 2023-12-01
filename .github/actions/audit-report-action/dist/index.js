@@ -30902,10 +30902,7 @@ async function createOrUpdateIssues(vulnerabilityProjectMapping, discoveredVulne
       // issue exists
       // update the issue
       const issueNumber = issue.number;
-      const issueBody = issue.body_html;
-      core.info(issue.body_html);
-      core.info(issue.body_text);
-      core.info(issue.body);
+      const issueBody = issue.body;
       await octokit.rest.issues.update({
         ...github.context.repo,
         issue_number: issueNumber,
@@ -30920,8 +30917,7 @@ async function createOrUpdateIssues(vulnerabilityProjectMapping, discoveredVulne
 }
 
 async function createNewIssue(createFunc, vId, vName, vTitle, vSeverity, vUrl, vEffects, affectedProjects, issueTitle) {
-  let newIssueBody = `\
-    <h2 id="last-checked-date-">Last checked date:</h2>
+  let newIssueBody = `<h2 id="last-checked-date-">Last checked date:</h2>
     <p>${new Date(Date.now()).toLocaleDateString()}</p>
     <h2 id="vulnerability-information">Vulnerability Information</h2>
     <table>
