@@ -3,8 +3,6 @@ const github = require('@actions/github');
 const child_process = require('child_process');
 
 const SPAWN_PROCESS_BUFFER_SIZE = 10485760
-core.info(core.getInput("projects"));
-core.info(core.getInput("token"));
 
 const run = async function() {
   const projects = core.getInput('projects').split(',');
@@ -17,7 +15,7 @@ const run = async function() {
     const vulnerabilities = await runAudit(projectName);
 
     for(const vulnerability of vulnerabilities) {
-      const vId = vulnerability.via.source;
+      const vId = vulnerability.via[0].source;
 
       if(!vulnerabilityProjectMapping.has(vId)){
         discoveredVulnerabilities.push(vulnerability);
@@ -84,8 +82,8 @@ async function createOrUpdateIssues(vulnerabilityProjectMapping, discoveredVulne
   await closeOldIssues(octokit.rest.issues.update, vulnerabilityIssues, vulnerabilityProjectMapping);
 
   for(const vulnerability of discoveredVulnerabilities) {
-    const vId = vulnerability.via.source;
-    const vName = vulnerability.via.name;
+    const vId = vulnerability.via[0].source;
+    const vName = vulnerability.via[0].name;
     const issueTitle = `Vulnerability Report: ${vId} - ${vName}`;
 
     const issue = vulnerabilityIssues
@@ -107,7 +105,7 @@ async function createOrUpdateIssues(vulnerabilityProjectMapping, discoveredVulne
     } else {
       // create new issue
       const affectedProjects = vulnerabilityProjectMapping.get(vId);
-      await createNewIssue(octokit.rest.issues.create, vId, vName, vulnerability.via.title, vulnerability.via.severity, vulnerability.via.url, vulnerability.effects, affectedProjects, issueTitle);
+      await createNewIssue(octokit.rest.issues.create, vId, vName, vulnerability.via[0].title, vulnerability.via[0].severity, vulnerability.via[0].url, vulnerability.effects, affectedProjects, issueTitle);
     }
   }
 }
