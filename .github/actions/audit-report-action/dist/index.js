@@ -1,6 +1,95 @@
 /******/ (() => { // webpackBootstrap
 /******/ 	var __webpack_modules__ = ({
 
+/***/ 5530:
+/***/ ((__unused_webpack_module, __webpack_exports__, __nccwpck_require__) => {
+
+"use strict";
+__nccwpck_require__.r(__webpack_exports__);
+/* harmony export */ __nccwpck_require__.d(__webpack_exports__, {
+/* harmony export */   "runAudit": () => (/* binding */ runAudit)
+/* harmony export */ });
+const child_process = __nccwpck_require__(2081);
+
+const SPAWN_PROCESS_BUFFER_SIZE = 10485760; // 10MB
+
+function extractVulnerabilities(rawVulnerabilities) {
+  return Object.values(rawVulnerabilities).filter(value => {
+    return !value.isDirect && Array.isArray(value.via) && typeof value.via[0] === 'object';
+  });
+}
+
+async function runAudit(projectName) {
+  if (!projectName) {
+    throw new Error('A project name is required');
+  }
+
+  console.info(`\nAuditing ${projectName}...`);
+
+  process.chdir(projectName);
+
+  child_process.spawnSync("npm", ["ci", "--no-audit", "--legacy-peer-deps"], {
+    encoding: 'utf-8',
+    maxBuffer: SPAWN_PROCESS_BUFFER_SIZE
+  });
+
+  const result = child_process.spawnSync("npm", ["audit", "--json", "--omit=dev"], {
+    encoding: 'utf-8',
+    maxBuffer: SPAWN_PROCESS_BUFFER_SIZE
+  });
+
+  const auditRaw = JSON.parse(result.stdout);
+  let vulnerabilityList = [];
+
+  if (auditRaw.metadata?.vulnerabilities?.total > 0) {
+    console.info("Vulnerabilities found");
+    vulnerabilityList = extractVulnerabilities(auditRaw.vulnerabilities);
+  } else {
+    console.info("No vulnerabilities found");
+  }
+
+  process.chdir("..");
+
+  return vulnerabilityList;
+}
+
+/***/ }),
+
+/***/ 152:
+/***/ ((__unused_webpack_module, __webpack_exports__, __nccwpck_require__) => {
+
+"use strict";
+__nccwpck_require__.r(__webpack_exports__);
+/* harmony export */ __nccwpck_require__.d(__webpack_exports__, {
+/* harmony export */   "Config": () => (/* binding */ Config),
+/* harmony export */   "validateConfig": () => (/* binding */ validateConfig)
+/* harmony export */ });
+const core = __nccwpck_require__(4097);
+const github = __nccwpck_require__(3617);
+
+const Config = {
+  projects: core.getInput('projects').split(','),
+  token: core.getInput('token'),
+  issueTitlePrefix: core.getInput('issue_title_prefix') || 'Vulnerability Report:',
+  octokit: github.getOctokit(core.getInput('token')),
+  repo: github.context.repo
+};
+
+
+function validateConfig() {
+  const { projects, token } = Config;
+
+  if (!projects) {
+    throw new Error('Input project names are required');
+  }
+
+  if (!token) {
+    throw new Error('Input token is required');
+  }
+}
+
+/***/ }),
+
 /***/ 9853:
 /***/ ((__unused_webpack_module, __webpack_exports__, __nccwpck_require__) => {
 
@@ -9,63 +98,59 @@ __nccwpck_require__.r(__webpack_exports__);
 /* harmony export */ __nccwpck_require__.d(__webpack_exports__, {
 /* harmony export */   "createOrUpdateIssues": () => (/* binding */ createOrUpdateIssues)
 /* harmony export */ });
-async function createOrUpdateIssues(octokit, repo, vulnerabilityIdProjectMapping, activeVulnerabilities) {
-  
-  // Get all security labeled issues
-  const { data: securityIssues} = await octokit.rest.issues.listForRepo(
-    {
-      ...repo,
-      state: 'open',
-      labels: ['security']
+/* harmony import */ var _config__WEBPACK_IMPORTED_MODULE_0__ = __nccwpck_require__(152);
+
+
+const octokit = _config__WEBPACK_IMPORTED_MODULE_0__.Config.octokit;
+const repo = _config__WEBPACK_IMPORTED_MODULE_0__.Config.repo;
+const issueTitlePrefix = _config__WEBPACK_IMPORTED_MODULE_0__.Config.issueTitlePrefix;
+
+async function createOrUpdateIssues(vulnerabilityIdProjectMapping, activeVulnerabilities) {
+  // Get all security labeled open issues
+  const { data: securityOpenIssues } = await octokit.rest.issues.listForRepo({
+    ...repo,
+    state: 'open',
+    labels: ['security']
+  });
+
+  const vulnerabilityIssues = securityOpenIssues.filter(issue => issue.title.includes(issueTitlePrefix));
+
+  await Promise.all(activeVulnerabilities.map((vulnerability) => {
+    const { source: id, name } = vulnerability.via[0];
+    const issueTitle = `${issueTitlePrefix} ${id} - ${name}`;
+    const issue = vulnerabilityIssues.filter(issue => issue.title === issueTitle)[0];
+    if (issue) {
+      updateExistingIssue(issue, vulnerabilityIdProjectMapping.get(id));
+    } else {
+      createNewIssue(vulnerability, vulnerabilityIdProjectMapping.get(id), issueTitle);
     }
-  )
-
-  const vulnerabilityIssues = securityIssues
-    .filter(issue => issue.title.includes("Vulnerability Report:"));
-
-    for (const vulnerability of activeVulnerabilities) {
-      const vId = vulnerability.via[0].source;
-      const vName = vulnerability.via[0].name;
-      const vTitle = vulnerability.via[0].title;
-      const vSeverity = vulnerability.via[0].severity;
-      const vUrl = vulnerability.via[0].url;
-      const vEffects = vulnerability.effects;
-
-      const issueTitle = `Vulnerability Report: ${vId} - ${vName}`;
-      const issue = vulnerabilityIssues.filter(issue => issue.title === issueTitle)[0];
-
-      const affectedProjects = vulnerabilityIdProjectMapping.get(vId);
-
-      if(issue) {
-          //update issue
-        await updateExistingIssue(octokit.rest.issues.update, repo, issue, affectedProjects);
-      } else {
-        await createNewIssue(octokit.rest.issues.create, repo, vId, vName, vTitle, vSeverity, vUrl, vEffects, affectedProjects, issueTitle);
-      }
-    }
+  }));
 
   // Close issues referencing fixed vulnerabilities if not closed manually.
   await closeOldIssues(octokit.rest.issues.update, repo, vulnerabilityIssues, vulnerabilityIdProjectMapping);
 }
 
-async function updateExistingIssue(updateFunc, repo, issue, affectedProjects) {
+async function updateExistingIssue(issue, affectedProjects) {
   const issueNumber = issue.number;
   let issueBody = issue.body.replace(/[0-9]{1,2}\/[0-9]{1,2}\/[0-9]{4}/gm, new Date(Date.now()).toLocaleDateString());
   let appendClosingListTag = false;
-  for(const affectedProject of affectedProjects) {
+  for (const affectedProject of affectedProjects) {
     const element = `<li>${affectedProject}</li>`;
-    if(!issueBody.includes(element)) {
-      issueBody = issueBody.replace(/\<\/ul\>/gm, '').concat(element);
+    if (!issueBody.includes(element)) {
+      issueBody = issueBody.replace(/\<\/ul\>/gm, element);
+      appendClosingListTag = true;
     }
   }
-  await updateFunc({
+  return octokit.rest.issues.update({
     ...repo,
     issue_number: issueNumber,
-    body: appendClosingListTag ? issueBody.concat('</ul>'): issueBody
+    body: appendClosingListTag ? issueBody.concat('</ul>') : issueBody
   });
 }
 
-async function createNewIssue(createFunc, repo, vId, vName, vTitle, vSeverity, vUrl, vEffects, affectedProjects, issueTitle) {
+async function createNewIssue(vulnerability, affectedProjects, issueTitle) {
+  const { source: id, name, title, severity, url } = vulnerability.via[0];
+  const effects = vulnerability.effects;
   let newIssueBody = `<h2 id="last-checked-date-">Last checked date:</h2>
     <p>${new Date(Date.now()).toLocaleDateString()}</p>
     <h2 id="vulnerability-information">Vulnerability Information</h2>
@@ -82,24 +167,21 @@ async function createNewIssue(createFunc, repo, vId, vName, vTitle, vSeverity, v
       </thead>
       <tbody>
         <tr>
-          <td>${vId}</td>
-          <td>${vName}</td>
-          <td>${vTitle}</td>
-          <td>${vSeverity}</td>
-          <td><a href="${vUrl}">${vUrl}</a></td>
-          <td>${vEffects.toString()}</td>
+          <td>${id}</td>
+          <td>${name}</td>
+          <td>${title}</td>
+          <td>${severity}</td>
+          <td><a href="${url}">${url}</a></td>
+          <td>${effects.toString()}</td>
         </tr>
       </tbody>
     </table>
     <h2 id="affected-projects">Affected Projects</h2>
-    `
-  newIssueBody = newIssueBody.concat("<ul>");
-  for(const affectedProject of affectedProjects) {
-    newIssueBody = newIssueBody.concat(`<li>${affectedProject}</li>`);
-  }
-  newIssueBody = newIssueBody.concat("</ul>");
+    <ul>
+      ${affectedProjects.map(project => `<li>${project}</li>`).join('')}
+    </ul>`;
 
-  await createFunc({
+  return octokit.rest.issues.create({
     ...repo,
     title: issueTitle,
     body: newIssueBody,
@@ -107,18 +189,12 @@ async function createNewIssue(createFunc, repo, vId, vName, vTitle, vSeverity, v
   });
 }
 
-async function closeOldIssues(updateFunc, repo, vulnerabilityIssues, vulnerabilityIdProjectMapping) {
-  for(const vulnerabilityIssue of vulnerabilityIssues) {
-    const issueVId = Number(vulnerabilityIssue.title.split(": ")[1].split(" - ")[0]);
-    if(!vulnerabilityIdProjectMapping.has(issueVId)){
-      // There is an open issue referencing inactive vulnerability
-      await updateFunc({
-        ...repo,
-        issue_number: vulnerabilityIssue.number,
-        state: 'closed'
-      })
-    }
-  }
+async function closeOldIssues(vulnerabilityIssues, vulnerabilityIdProjectMapping) {
+  const inactiveVulnerabilityIssues = vulnerabilityIssues.filter((vulnerabilityIssue) => {
+    const id = Number(vulnerabilityIssue.title.split(": ")[1].split(" - ")[0]);
+    return !vulnerabilityIdProjectMapping.has(id);
+  });
+  return Promise.all(inactiveVulnerabilityIssues.map((inactiveVulnerabilityIssue) => octokit.rest.issues.update({ ...repo, issue_number: inactiveVulnerabilityIssue.number, state: 'closed' })));
 }
 
 /***/ }),
@@ -29029,24 +29105,6 @@ function wrappy (fn, cb) {
 
 /***/ }),
 
-/***/ 7379:
-/***/ ((__unused_webpack_module, __webpack_exports__, __nccwpck_require__) => {
-
-"use strict";
-__nccwpck_require__.r(__webpack_exports__);
-/* harmony export */ __nccwpck_require__.d(__webpack_exports__, {
-/* harmony export */   "extractVulnerabilities": () => (/* binding */ extractVulnerabilities)
-/* harmony export */ });
-function extractVulnerabilities(resultJsonVulnerabilities) {
-  return Object.entries(resultJsonVulnerabilities).map(([key, value]) => {
-    if (!value.isDirect && Array.isArray(value.via) && typeof value.via[0] == 'object') {
-      return value;
-    }
-  }).filter((value) => { return !!value; });
-}
-
-/***/ }),
-
 /***/ 9491:
 /***/ ((module) => {
 
@@ -30975,74 +31033,39 @@ module.exports = parseParams
 var __webpack_exports__ = {};
 // This entry need to be wrapped in an IIFE because it need to be isolated against other modules in the chunk.
 (() => {
-const core = __nccwpck_require__(4097);
-const github = __nccwpck_require__(3617);
-const child_process = __nccwpck_require__(2081);
-const { extractVulnerabilities } = __nccwpck_require__(7379);
+const { runAudit } = __nccwpck_require__(5530);
+const { validateConfig, Config } = __nccwpck_require__(152);
 const { createOrUpdateIssues } = __nccwpck_require__(9853);
 
-const SPAWN_PROCESS_BUFFER_SIZE = 10485760
-
 const run = async function() {
-  const projects = core.getInput('projects').split(',');
-  if(!projects) {
-    throw new Error('Project names are required');
-  }
-
   const vulnerabilityIdProjectMapping = new Map();
   const activeVulnerabilities = [];
 
-  for(const projectName of projects) {
-    const projectVulnerabilities = await runAudit(projectName);
+  const projectsVulnerabilities = await Promise.all(Config.projects.map(runAudit));
 
-    for(const projectVulnerability of projectVulnerabilities) {
-      const vId = projectVulnerability.via[0].source;
-      if(vulnerabilityIdProjectMapping.has(vId)){
-        const addedProjectNames = vulnerabilityIdProjectMapping.get(vId);
-        addedProjectNames.push(projectName);
-        vulnerabilityIdProjectMapping.set(vId, addedProjectNames);
+  for (let i = 0; i < projectsVulnerabilities.length; i++) {
+    const projectName = Config.projects[i];
+    const projectVulnerabilities = projectsVulnerabilities[i];
+
+    for (const projectVulnerability of projectVulnerabilities) {
+      const vulnerabilityId = projectVulnerability.via[0].source;
+
+      if (vulnerabilityIdProjectMapping.has(vulnerabilityId)){
+        vulnerabilityIdProjectMapping.get(vulnerabilityId).push(projectName);
       } else {
         activeVulnerabilities.push(projectVulnerability);
-        vulnerabilityIdProjectMapping.set(vId,[projectName]);
+        vulnerabilityIdProjectMapping.set(vulnerabilityId, [projectName]);
       }
     }
   }
-  const token = core.getInput('token');
-  const octokit = github.getOctokit(token);
-  await createOrUpdateIssues(octokit, github.context.repo, vulnerabilityIdProjectMapping, activeVulnerabilities);
-  return true;
+
+  await createOrUpdateIssues(vulnerabilityIdProjectMapping, activeVulnerabilities);
 }
 
-async function runAudit(projectName) {
-  core.info(`\n Auditing ${projectName}...`);
-  if (!projectName) {
-    throw new Error('A project name is required');
-  }
-  process.chdir(projectName);
+validateConfig();
 
-  child_process.spawnSync("npm", ["ci", "--no-audit", "--legacy-peer-deps"], {
-    encoding: 'utf-8',
-    maxBuffer: SPAWN_PROCESS_BUFFER_SIZE
-  });
-
-  const result = child_process.spawnSync("npm", ["audit", "--json", "--omit=dev"], {
-    encoding: 'utf-8',
-    maxBuffer: SPAWN_PROCESS_BUFFER_SIZE
-  });
-
-  const auditRawJson = JSON.parse(result.stdout);
-  let vulnerabilityList = [];
-
-  if (auditRawJson.metadata?.vulnerabilities?.total > 0) {
-    core.info("Vulnerabilities found");
-    vulnerabilityList = extractVulnerabilities(auditRawJson.vulnerabilities);
-  } else {
-    core.info("No vulnerabilities found");
-  }
-  process.chdir("..");
-  return vulnerabilityList;
-}
 run();
+
 })();
 
 module.exports = __webpack_exports__;
