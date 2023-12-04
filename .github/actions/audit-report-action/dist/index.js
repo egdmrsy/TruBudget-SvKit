@@ -134,6 +134,7 @@ async function updateExistingIssue(issue, affectedProjects) {
   const issueNumber = issue.number;
   let issueBody = issue.body.replace(/[0-9]{1,2}\/[0-9]{1,2}\/[0-9]{4}/gm, new Date(Date.now()).toLocaleDateString());
   let appendClosingListTag = false;
+
   for (const affectedProject of affectedProjects) {
     const element = `<li>${affectedProject}</li>`;
     if (!issueBody.includes(element)) {
@@ -151,7 +152,7 @@ async function updateExistingIssue(issue, affectedProjects) {
 async function createNewIssue(vulnerability, affectedProjects, issueTitle) {
   const { source: id, name, title, severity, url } = vulnerability.via[0];
   const effects = vulnerability.effects;
-  let newIssueBody = `<h2 id="last-checked-date-">Last checked date:</h2>
+  const newIssueBody = `<h2 id="last-checked-date-">Last checked date:</h2>
     <p>${new Date(Date.now()).toLocaleDateString()}</p>
     <h2 id="vulnerability-information">Vulnerability Information</h2>
     <table>
