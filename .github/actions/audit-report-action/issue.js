@@ -26,7 +26,7 @@ export async function createOrUpdateIssues(vulnerabilityIdProjectMapping, active
   }));
 
   // Close issues referencing fixed vulnerabilities if not closed manually.
-  await closeOldIssues(octokit.rest.issues.update, repo, vulnerabilityIssues, vulnerabilityIdProjectMapping);
+  await closeOldIssues(vulnerabilityIssues, vulnerabilityIdProjectMapping);
 }
 
 async function updateExistingIssue(issue, affectedProjects) {
