@@ -61,6 +61,8 @@ async function runContainerAudit(projectName) {
     maxBuffer: config.Config.spawnProcessBufferSize
   });
 
+  console.log(result);
+
   await cleanupImage(imageName);
 
   return result.stdout;
