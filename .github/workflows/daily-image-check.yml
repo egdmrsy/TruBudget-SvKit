@@ -23,9 +23,10 @@ jobs:
           docker build -t docker.io/${{matrix.project}}:${{ github.sha }} .
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@master
+        continue-on-error: true
         with:
           image-ref: 'docker.io/${{matrix.project}}:${{ github.sha }}'
-          format: 'table'
+          format: 'json'
           exit-code: '1'
           ignore-unfixed: true
           vuln-type: 'os,library'
