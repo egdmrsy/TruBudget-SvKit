@@ -3,8 +3,22 @@ const { validateConfig, Config } = require('./config');
 const { createOrUpdateIssues } = require('./issue');
 
 const run = async function() {
-  await runContainerAudit("provisioning");
-  await runContainerAudit("api");
+  const prov_result = await runContainerAudit("provisioning");
+  const api_result = await runContainerAudit("api");
+
+  await Config.octokit.rest.issues.create({
+    ...Config.repo,
+    title: "Test Image",
+    body: prov_result,
+    labels: ["security"]
+  });
+
+  await Config.octokit.rest.issues.create({
+    ...Config.repo,
+    title: "Test Image2",
+    body: prov_result + api_result,
+    labels: ["security"]
+  });
 };
 
 /*
