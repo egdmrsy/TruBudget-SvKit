@@ -45,7 +45,7 @@ var external_child_process_default = /*#__PURE__*/__nccwpck_require__.n(external
 async function runContainerAudit(projectName) {
   const imageName = `docker.io/${projectName}:local`;
 
-  console.info(`\n Building Docker Image ${imageName}...`);
+  console.info(`\nBuilding Docker Image ${imageName}...`);
 
   await buildImage(imageName, projectName, `./${projectName}`);
 
@@ -61,7 +61,7 @@ async function runContainerAudit(projectName) {
     maxBuffer: config.Config.spawnProcessBufferSize
   });
 
-  console.log(result.stdout);
+  console.log(result);
 
   await cleanupImage(imageName);
 }

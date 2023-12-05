@@ -5,7 +5,7 @@ import child_process from 'child_process';
 export async function runContainerAudit(projectName) {
   const imageName = `docker.io/${projectName}:local`;
 
-  console.info(`\n Building Docker Image ${imageName}...`);
+  console.info(`\nBuilding Docker Image ${imageName}...`);
 
   await buildImage(imageName, projectName, `./${projectName}`);
 
@@ -21,7 +21,7 @@ export async function runContainerAudit(projectName) {
     maxBuffer: Config.spawnProcessBufferSize
   });
 
-  console.log(result.stdout);
+  console.log(result);
 
   await cleanupImage(imageName);
 }
