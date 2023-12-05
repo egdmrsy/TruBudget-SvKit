@@ -43,7 +43,7 @@ var external_child_process_default = /*#__PURE__*/__nccwpck_require__.n(external
 
 
 async function runContainerAudit(projectName) {
-  const imageName = `docker.io/${projectName}:${config.Config.sha}`;
+  const imageName = `docker.io/${projectName}:local`;
 
   console.info(`\n Building Docker Image ${imageName}...`);
 
@@ -131,7 +131,6 @@ const Config = {
   issueTitlePrefix: core.getInput('issue_title_prefix') || 'Security Report:',
   octokit: github.getOctokit(core.getInput('token')),
   repo: github.context.repo,
-  sha: github.sha,
   spawnProcessBufferSize: 10485760 // 10MB
 };
 

@@ -3,7 +3,7 @@ import { buildImage, cleanupImage } from './docker';
 import child_process from 'child_process';
 
 export async function runContainerAudit(projectName) {
-  const imageName = `docker.io/${projectName}:${Config.sha}`;
+  const imageName = `docker.io/${projectName}:local`;
 
   console.info(`\n Building Docker Image ${imageName}...`);
 
