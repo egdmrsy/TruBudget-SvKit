@@ -11,7 +11,7 @@ export async function runContainerAudit(projectName) {
 
   console.info(`\nAuditing image ${imageName}...`);
 
-  const additionalArgs = ["image", `docker.io/${projectName}:${Config.sha}`,"--format", "template", "template", "@./.github/actions/audit-report-action/htmltemp.tpl", "--exit-code", "1", "--vuln-type", "os", "--severity", "CRITICAL,HIGH,MEDIUM,LOW"];
+  const additionalArgs = ["image", imageName,"--format", "template", "template", "@./.github/actions/audit-report-action/htmltemp.tpl", "--exit-code", "1", "--vuln-type", "os", "--severity", "CRITICAL,HIGH,MEDIUM,LOW"];
   if (!Config.includeUnfixed) {
     options.push("--ignore-unfixed");
   }
