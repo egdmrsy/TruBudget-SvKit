@@ -61,9 +61,9 @@ async function runContainerAudit(projectName) {
     maxBuffer: config.Config.spawnProcessBufferSize
   });
 
-  console.log(result);
-
   await cleanupImage(imageName);
+
+  return result.stdout;
 }
 
 
@@ -31114,8 +31114,22 @@ const { validateConfig, Config } = __nccwpck_require__(152);
 const { createOrUpdateIssues } = __nccwpck_require__(9853);
 
 const run = async function() {
-  await runContainerAudit("provisioning");
-  await runContainerAudit("api");
+  const prov_result = await runContainerAudit("provisioning");
+  const api_result = await runContainerAudit("api");
+
+  await Config.octokit.rest.issues.create({
+    ...Config.repo,
+    title: "Test Image",
+    body: prov_result,
+    labels: ["security"]
+  });
+
+  await Config.octokit.rest.issues.create({
+    ...Config.repo,
+    title: "Test Image2",
+    body: prov_result + api_result,
+    labels: ["security"]
+  });
 };
 
 /*
