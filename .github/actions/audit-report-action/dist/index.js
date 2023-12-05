@@ -1,23 +1,71 @@
 /******/ (() => { // webpackBootstrap
 /******/ 	var __webpack_modules__ = ({
 
-/***/ 5530:
+/***/ 6024:
 /***/ ((__unused_webpack_module, __webpack_exports__, __nccwpck_require__) => {
 
 "use strict";
+// ESM COMPAT FLAG
 __nccwpck_require__.r(__webpack_exports__);
-/* harmony export */ __nccwpck_require__.d(__webpack_exports__, {
-/* harmony export */   "runAudit": () => (/* binding */ runAudit)
-/* harmony export */ });
+
+// EXPORTS
+__nccwpck_require__.d(__webpack_exports__, {
+  "runAudit": () => (/* binding */ runAudit),
+  "runContainerAudit": () => (/* binding */ runContainerAudit)
+});
+
+// EXTERNAL MODULE: ./config.js
+var config = __nccwpck_require__(152);
+;// CONCATENATED MODULE: ./docker.js
+
+
 const child_process = __nccwpck_require__(2081);
 
-const SPAWN_PROCESS_BUFFER_SIZE = 10485760; // 10MB
-
-function extractVulnerabilities(rawVulnerabilities) {
-  return Object.values(rawVulnerabilities).filter(value => {
-    return !value.isDirect && Array.isArray(value.via) && typeof value.via[0] === 'object';
+async function buildImage(imageName, path) {
+  child_process.spawnSync("docker", ["build", "-t", imageName, path], {
+    encoding: 'utf-8',
+    maxBuffer: config.Config.spawnProcessBufferSize
   });
 }
+
+async function cleanupImage(imageName) {
+  child_process.spawnSync("docker", ["rmi", imageName], {
+    encoding: 'utf-8',
+    maxBuffer: config.Config.spawnProcessBufferSize
+  });
+}
+// EXTERNAL MODULE: external "child_process"
+var external_child_process_ = __nccwpck_require__(2081);
+var external_child_process_default = /*#__PURE__*/__nccwpck_require__.n(external_child_process_);
+;// CONCATENATED MODULE: ./audit.js
+
+
+
+
+async function runContainerAudit(projectName) {
+  const imageName = `docker.io/${projectName}:${config.Config.sha}`;
+
+  console.info(`\n Building Docker Image ${imageName}...`);
+
+  await buildImage(imageName, projectName, `./${projectName}`);
+
+  console.info(`\nAuditing image ${imageName}...`);
+
+  const additionalArgs = ["image", `docker.io/${projectName}:${config.Config.sha}`,"--format", "template", "template", "@./.github/actions/audit-report-action/htmltemp.tpl", "--exit-code", "1", "--vuln-type", "os", "--severity", "CRITICAL,HIGH,MEDIUM,LOW"];
+  if (!config.Config.includeUnfixed) {
+    options.push("--ignore-unfixed");
+  }
+
+  const result = external_child_process_default().spawnSync("trivy", additionalArgs, {
+    encoding: 'utf-8',
+    maxBuffer: config.Config.spawnProcessBufferSize
+  });
+
+  console.log(result.stdout);
+
+  await cleanupImage(imageName);
+}
+
 
 async function runAudit(projectName) {
   if (!projectName) {
@@ -28,12 +76,12 @@ async function runAudit(projectName) {
 
   process.chdir(projectName);
 
-  child_process.spawnSync("npm", ["ci", "--no-audit", "--legacy-peer-deps"], {
+  external_child_process_default().spawnSync("npm", ["ci", "--no-audit", "--legacy-peer-deps"], {
     encoding: 'utf-8',
     maxBuffer: SPAWN_PROCESS_BUFFER_SIZE
   });
 
-  const result = child_process.spawnSync("npm", ["audit", "--json", "--omit=dev"], {
+  const result = external_child_process_default().spawnSync("npm", ["audit", "--json", "--omit=dev"], {
     encoding: 'utf-8',
     maxBuffer: SPAWN_PROCESS_BUFFER_SIZE
   });
@@ -53,6 +101,13 @@ async function runAudit(projectName) {
   return vulnerabilityList;
 }
 
+
+function extractVulnerabilities(rawVulnerabilities) {
+  return Object.values(rawVulnerabilities).filter(value => {
+    return !value.isDirect && Array.isArray(value.via) && typeof value.via[0] === 'object';
+  });
+}
+
 /***/ }),
 
 /***/ 152:
@@ -69,18 +124,27 @@ const github = __nccwpck_require__(3617);
 
 const Config = {
   projects: core.getInput('projects').split(','),
+  includeDevDependencies: core.getInput('include-dev-dependencies') === 'true',
+  includeUnfixed: core.getInput('include-unfixed') === 'true',
+  severityLevels: core.getInput('severity-levels'),
   token: core.getInput('token'),
-  issueTitlePrefix: core.getInput('issue_title_prefix') || 'Vulnerability Report:',
+  issueTitlePrefix: core.getInput('issue_title_prefix') || 'Security Report:',
   octokit: github.getOctokit(core.getInput('token')),
-  repo: github.context.repo
+  repo: github.context.repo,
+  sha: github.sha,
+  spawnProcessBufferSize: 10485760 // 10MB
 };
 
 
 function validateConfig() {
-  const { projects, token } = Config;
+  const { projects, severityLevels, token } = Config;
 
   if (!projects) {
     throw new Error('Input project names are required');
+  }
+
+  if (!severityLevels) {
+    throw new Error('Input severity levels are required');
   }
 
   if (!token) {
@@ -30998,6 +31062,18 @@ module.exports = parseParams
 /******/ 	}
 /******/ 	
 /************************************************************************/
+/******/ 	/* webpack/runtime/compat get default export */
+/******/ 	(() => {
+/******/ 		// getDefaultExport function for compatibility with non-harmony modules
+/******/ 		__nccwpck_require__.n = (module) => {
+/******/ 			var getter = module && module.__esModule ?
+/******/ 				() => (module['default']) :
+/******/ 				() => (module);
+/******/ 			__nccwpck_require__.d(getter, { a: getter });
+/******/ 			return getter;
+/******/ 		};
+/******/ 	})();
+/******/ 	
 /******/ 	/* webpack/runtime/define property getters */
 /******/ 	(() => {
 /******/ 		// define getter functions for harmony exports
@@ -31034,10 +31110,16 @@ module.exports = parseParams
 var __webpack_exports__ = {};
 // This entry need to be wrapped in an IIFE because it need to be isolated against other modules in the chunk.
 (() => {
-const { runAudit } = __nccwpck_require__(5530);
+const { runAudit, runContainerAudit } = __nccwpck_require__(6024);
 const { validateConfig, Config } = __nccwpck_require__(152);
 const { createOrUpdateIssues } = __nccwpck_require__(9853);
 
+const run = async function() {
+  await runContainerAudit("provisioning");
+  await runContainerAudit("api");
+};
+
+/*
 const run = async function() {
   const vulnerabilityIdProjectMapping = new Map();
   const activeVulnerabilities = [];
@@ -31062,7 +31144,7 @@ const run = async function() {
 
   await createOrUpdateIssues(vulnerabilityIdProjectMapping, activeVulnerabilities);
 }
-
+*/
 validateConfig();
 
 run();
