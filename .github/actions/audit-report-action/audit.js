@@ -1,12 +1,31 @@
-const child_process = require('child_process');
+import { Config } from './config';
+import { buildImage, cleanupImage } from './docker';
+import child_process from 'child_process';
 
-const SPAWN_PROCESS_BUFFER_SIZE = 10485760; // 10MB
+export async function runContainerAudit(projectName) {
+  const imageName = `docker.io/${projectName}:${Config.sha}`;
 
-function extractVulnerabilities(rawVulnerabilities) {
-  return Object.values(rawVulnerabilities).filter(value => {
-    return !value.isDirect && Array.isArray(value.via) && typeof value.via[0] === 'object';
+  console.info(`\n Building Docker Image ${imageName}...`);
+
+  await buildImage(imageName, projectName, `./${projectName}`);
+
+  console.info(`\nAuditing image ${imageName}...`);
+
+  const additionalArgs = ["image", `docker.io/${projectName}:${Config.sha}`,"--format", "template", "template", "@./.github/actions/audit-report-action/htmltemp.tpl", "--exit-code", "1", "--vuln-type", "os", "--severity", "CRITICAL,HIGH,MEDIUM,LOW"];
+  if (!Config.includeUnfixed) {
+    options.push("--ignore-unfixed");
+  }
+
+  const result = child_process.spawnSync("trivy", additionalArgs, {
+    encoding: 'utf-8',
+    maxBuffer: Config.spawnProcessBufferSize
   });
+
+  console.log(result.stdout);
+
+  await cleanupImage(imageName);
 }
+
 
 export async function runAudit(projectName) {
   if (!projectName) {
@@ -40,4 +59,11 @@ export async function runAudit(projectName) {
   process.chdir("..");
 
   return vulnerabilityList;
+}
+
+
+function extractVulnerabilities(rawVulnerabilities) {
+  return Object.values(rawVulnerabilities).filter(value => {
+    return !value.isDirect && Array.isArray(value.via) && typeof value.via[0] === 'object';
+  });
 }

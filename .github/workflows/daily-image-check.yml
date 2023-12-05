@@ -28,6 +28,6 @@ jobs:
           image-ref: 'docker.io/${{matrix.project}}:${{ github.sha }}'
           format: 'json'
           exit-code: '1'
-          ignore-unfixed: true
+          ignore-unfixed: false
           vuln-type: 'os,library'
           severity: 'CRITICAL,HIGH,MEDIUM,LOW'

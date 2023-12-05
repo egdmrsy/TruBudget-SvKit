@@ -1,0 +1,25 @@
+name: Daily Security Check for vulnerabilities in dependencies and images
+on:
+  schedule:
+    - cron: '0 0 * * *'
+  workflow_dispatch:
+
+jobs:
+  audit: 
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - uses: actions/checkout@v4
+      - name: Use Node.js 18.x
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18.x
+      - name: Audit projects and create security reports
+        uses: ./.github/actions/audit-report-action
+        with:
+          projects: frontend,api,blockchain,provisioning,e2e-test,excel-export-service,email-notification-service,storage-service,logging-service,migration
+          include-dev-dependencies: true
+          issue_title_prefix: "Security Report:"
+          include-unfixed: true
+          severity-levels: CRITICAL,HIGH,MEDIUM,LOW
+          token: ${{ secrets.GITHUB_TOKEN }}

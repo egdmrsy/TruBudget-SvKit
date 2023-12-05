@@ -1,7 +1,13 @@
-const { runAudit } = require('./audit');
+const { runAudit, runContainerAudit } = require('./audit');
 const { validateConfig, Config } = require('./config');
 const { createOrUpdateIssues } = require('./issue');
 
+const run = async function() {
+  await runContainerAudit("provisioning");
+  await runContainerAudit("api");
+};
+
+/*
 const run = async function() {
   const vulnerabilityIdProjectMapping = new Map();
   const activeVulnerabilities = [];
@@ -26,7 +32,7 @@ const run = async function() {
 
   await createOrUpdateIssues(vulnerabilityIdProjectMapping, activeVulnerabilities);
 }
-
+*/
 validateConfig();
 
 run();

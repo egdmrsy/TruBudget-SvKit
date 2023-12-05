@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <style>
+      * {
+        font-family: Arial, Helvetica, sans-serif;
+      }
+      h1 {
+        text-align: center;
+      }
+      .group-header th {
+        font-size: 200%;
+      }
+      .sub-header th {
+        font-size: 150%;
+      }
+      table, th, td {
+        border: 1px solid black;
+        border-collapse: collapse;
+        white-space: nowrap;
+        padding: .3em;
+      }
+      table {
+        margin: 0 auto;
+      }
+      .severity {
+        text-align: center;
+        font-weight: bold;
+        color: #fafafa;
+      }
+      .severity-LOW .severity { background-color: #5fbb31; }
+      .severity-MEDIUM .severity { background-color: #e9c600; }
+      .severity-HIGH .severity { background-color: #ff8800; }
+      .severity-CRITICAL .severity { background-color: #e40000; }
+      .severity-UNKNOWN .severity { background-color: #747474; }
+      .severity-LOW { background-color: #5fbb3160; }
+      .severity-MEDIUM { background-color: #e9c60060; }
+      .severity-HIGH { background-color: #ff880060; }
+      .severity-CRITICAL { background-color: #e4000060; }
+      .severity-UNKNOWN { background-color: #74747460; }
+      table tr td:first-of-type {
+        font-weight: bold;
+      }
+      .links a,
+      .links[data-more-links=on] a {
+        display: block;
+      }
+      .links[data-more-links=off] a:nth-of-type(1n+5) {
+        display: none;
+      }
+      a.toggle-more-links { cursor: pointer; }
+    </style>
+    <title>Node.js - Trivy Report - 2023-12-05 16:09:52.396215 +0300 +03 m=+0.366018084 </title>
+    <script>
+      window.onload = function() {
+        document.querySelectorAll('td.links').forEach(function(linkCell) {
+          var links = [].concat.apply([], linkCell.querySelectorAll('a'));
+          [].sort.apply(links, function(a, b) {
+            return a.href > b.href ? 1 : -1;
+          });
+          links.forEach(function(link, idx) {
+            if (links.length > 3 && 3 === idx) {
+              var toggleLink = document.createElement('a');
+              toggleLink.innerText = "Toggle more links";
+              toggleLink.href = "#toggleMore";
+              toggleLink.setAttribute("class", "toggle-more-links");
+              linkCell.appendChild(toggleLink);
+            }
+            linkCell.appendChild(link);
+          });
+        });
+        document.querySelectorAll('a.toggle-more-links').forEach(function(toggleLink) {
+          toggleLink.onclick = function() {
+            var expanded = toggleLink.parentElement.getAttribute("data-more-links");
+            toggleLink.parentElement.setAttribute("data-more-links", "on" === expanded ? "off" : "on");
+            return false;
+          };
+        });
+      };
+    </script>
+  </head>
+  <body>
+    <h1>Node.js - Trivy Report - 2023-12-05 16:09:52.396231 +0300 +03 m=+0.366034209</h1>
+    <table>
+      <tr class="group-header"><th colspan="6">node-pkg</th></tr>
+      <tr class="sub-header">
+        <th>Package</th>
+        <th>Vulnerability ID</th>
+        <th>Severity</th>
+        <th>Installed Version</th>
+        <th>Fixed Version</th>
+        <th>Links</th>
+      </tr>
+      <tr class="severity-MEDIUM">
+        <td class="pkg-name">fast-jwt</td>
+        <td>CVE-2023-48223</td>
+        <td class="severity">MEDIUM</td>
+        <td class="pkg-version">2.2.3</td>
+        <td>3.3.2</td>
+        <td class="links" data-more-links="off">
+          <a href="https://github.com/nearform/fast-jwt">https://github.com/nearform/fast-jwt</a>
+          <a href="https://github.com/nearform/fast-jwt/blob/master/src/crypto.js#L29">https://github.com/nearform/fast-jwt/blob/master/src/crypto.js#L29</a>
+          <a href="https://github.com/nearform/fast-jwt/commit/15a6e92c9adb39acde41a9b11cec0cbde8ad763b">https://github.com/nearform/fast-jwt/commit/15a6e92c9adb39acde41a9b11cec0cbde8ad763b</a>
+          <a href="https://github.com/nearform/fast-jwt/releases/tag/v3.3.2">https://github.com/nearform/fast-jwt/releases/tag/v3.3.2</a>
+          <a href="https://github.com/nearform/fast-jwt/security/advisories/GHSA-c2ff-88x2-x9pg">https://github.com/nearform/fast-jwt/security/advisories/GHSA-c2ff-88x2-x9pg</a>
+          <a href="https://nvd.nist.gov/vuln/detail/CVE-2023-48223">https://nvd.nist.gov/vuln/detail/CVE-2023-48223</a>
+        </td>
+      </tr>
+      <tr class="severity-HIGH">
+        <td class="pkg-name">http-cache-semantics</td>
+        <td>CVE-2022-25881</td>
+        <td class="severity">HIGH</td>
+        <td class="pkg-version">4.1.0</td>
+        <td>4.1.1</td>
+        <td class="links" data-more-links="off">
+          <a href="https://access.redhat.com/errata/RHSA-2023:2655">https://access.redhat.com/errata/RHSA-2023:2655</a>
+          <a href="https://access.redhat.com/security/cve/CVE-2022-25881">https://access.redhat.com/security/cve/CVE-2022-25881</a>
+          <a href="https://bugzilla.redhat.com/2165824">https://bugzilla.redhat.com/2165824</a>
+          <a href="https://bugzilla.redhat.com/2168631">https://bugzilla.redhat.com/2168631</a>
+          <a href="https://bugzilla.redhat.com/2171935">https://bugzilla.redhat.com/2171935</a>
+          <a href="https://bugzilla.redhat.com/2172190">https://bugzilla.redhat.com/2172190</a>
+          <a href="https://bugzilla.redhat.com/2172204">https://bugzilla.redhat.com/2172204</a>
+          <a href="https://bugzilla.redhat.com/2172217">https://bugzilla.redhat.com/2172217</a>
+          <a href="https://bugzilla.redhat.com/show_bug.cgi?id=2165824">https://bugzilla.redhat.com/show_bug.cgi?id=2165824</a>
+          <a href="https://bugzilla.redhat.com/show_bug.cgi?id=2168631">https://bugzilla.redhat.com/show_bug.cgi?id=2168631</a>
+          <a href="https://bugzilla.redhat.com/show_bug.cgi?id=2171935">https://bugzilla.redhat.com/show_bug.cgi?id=2171935</a>
+          <a href="https://bugzilla.redhat.com/show_bug.cgi?id=2172190">https://bugzilla.redhat.com/show_bug.cgi?id=2172190</a>
+          <a href="https://bugzilla.redhat.com/show_bug.cgi?id=2172204">https://bugzilla.redhat.com/show_bug.cgi?id=2172204</a>
+          <a href="https://bugzilla.redhat.com/show_bug.cgi?id=2172217">https://bugzilla.redhat.com/show_bug.cgi?id=2172217</a>
+          <a href="https://bugzilla.redhat.com/show_bug.cgi?id=2178076">https://bugzilla.redhat.com/show_bug.cgi?id=2178076</a>
+          <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-25881">https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-25881</a>
+          <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-4904">https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-4904</a>
+          <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2023-23918">https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2023-23918</a>
+          <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2023-23920">https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2023-23920</a>
+          <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2023-23936">https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2023-23936</a>
+          <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2023-24807">https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2023-24807</a>
+          <a href="https://errata.almalinux.org/9/ALSA-2023-2655.html">https://errata.almalinux.org/9/ALSA-2023-2655.html</a>
+          <a href="https://errata.rockylinux.org/RLSA-2023:2655">https://errata.rockylinux.org/RLSA-2023:2655</a>
+          <a href="https://github.com/kornelski/http-cache-semantics">https://github.com/kornelski/http-cache-semantics</a>
+          <a href="https://github.com/kornelski/http-cache-semantics/blob/master/index.js%23L83">https://github.com/kornelski/http-cache-semantics/blob/master/index.js%23L83</a>
+          <a href="https://github.com/kornelski/http-cache-semantics/commit/560b2d8ef452bbba20ffed69dc155d63ac757b74">https://github.com/kornelski/http-cache-semantics/commit/560b2d8ef452bbba20ffed69dc155d63ac757b74</a>
+          <a href="https://linux.oracle.com/cve/CVE-2022-25881.html">https://linux.oracle.com/cve/CVE-2022-25881.html</a>
+          <a href="https://linux.oracle.com/errata/ELSA-2023-2655.html">https://linux.oracle.com/errata/ELSA-2023-2655.html</a>
+          <a href="https://nvd.nist.gov/vuln/detail/CVE-2022-25881">https://nvd.nist.gov/vuln/detail/CVE-2022-25881</a>
+          <a href="https://security.netapp.com/advisory/ntap-20230622-0008/">https://security.netapp.com/advisory/ntap-20230622-0008/</a>
+          <a href="https://security.snyk.io/vuln/SNYK-JAVA-ORGWEBJARSNPM-3253332">https://security.snyk.io/vuln/SNYK-JAVA-ORGWEBJARSNPM-3253332</a>
+          <a href="https://security.snyk.io/vuln/SNYK-JS-HTTPCACHESEMANTICS-3248783">https://security.snyk.io/vuln/SNYK-JS-HTTPCACHESEMANTICS-3248783</a>
+          <a href="https://www.cve.org/CVERecord?id=CVE-2022-25881">https://www.cve.org/CVERecord?id=CVE-2022-25881</a>
+        </td>
+      </tr>
+      <tr class="severity-MEDIUM">
+        <td class="pkg-name">semver</td>
+        <td>CVE-2022-25883</td>
+        <td class="severity">MEDIUM</td>
+        <td class="pkg-version">7.0.0</td>
+        <td>7.5.2, 6.3.1, 5.7.2</td>
+        <td class="links" data-more-links="off">
+          <a href="https://access.redhat.com/errata/RHSA-2023:5363">https://access.redhat.com/errata/RHSA-2023:5363</a>
+          <a href="https://access.redhat.com/security/cve/CVE-2022-25883">https://access.redhat.com/security/cve/CVE-2022-25883</a>
+          <a href="https://bugzilla.redhat.com/2216475">https://bugzilla.redhat.com/2216475</a>
+          <a href="https://bugzilla.redhat.com/2230948">https://bugzilla.redhat.com/2230948</a>
+          <a href="https://bugzilla.redhat.com/2230955">https://bugzilla.redhat.com/2230955</a>
+          <a href="https://bugzilla.redhat.com/2230956">https://bugzilla.redhat.com/2230956</a>
+          <a href="https://errata.almalinux.org/9/ALSA-2023-5363.html">https://errata.almalinux.org/9/ALSA-2023-5363.html</a>
+          <a href="https://github.com/advisories/GHSA-c2qf-rxjj-qqgw">https://github.com/advisories/GHSA-c2qf-rxjj-qqgw</a>
+          <a href="https://github.com/npm/node-semver">https://github.com/npm/node-semver</a>
+          <a href="https://github.com/npm/node-semver/blob/main/classes/range.js#L97-L104">https://github.com/npm/node-semver/blob/main/classes/range.js#L97-L104</a>
+          <a href="https://github.com/npm/node-semver/blob/main/classes/range.js%23L97-L104">https://github.com/npm/node-semver/blob/main/classes/range.js%23L97-L104</a>
+          <a href="https://github.com/npm/node-semver/blob/main/internal/re.js#L138">https://github.com/npm/node-semver/blob/main/internal/re.js#L138</a>
+          <a href="https://github.com/npm/node-semver/blob/main/internal/re.js#L160">https://github.com/npm/node-semver/blob/main/internal/re.js#L160</a>
+          <a href="https://github.com/npm/node-semver/blob/main/internal/re.js%23L138">https://github.com/npm/node-semver/blob/main/internal/re.js%23L138</a>
+          <a href="https://github.com/npm/node-semver/blob/main/internal/re.js%23L160">https://github.com/npm/node-semver/blob/main/internal/re.js%23L160</a>
+          <a href="https://github.com/npm/node-semver/commit/2f8fd41487acf380194579ecb6f8b1bbfe116be0">https://github.com/npm/node-semver/commit/2f8fd41487acf380194579ecb6f8b1bbfe116be0</a>
+          <a href="https://github.com/npm/node-semver/commit/717534ee353682f3bcf33e60a8af4292626d4441">https://github.com/npm/node-semver/commit/717534ee353682f3bcf33e60a8af4292626d4441</a>
+          <a href="https://github.com/npm/node-semver/commit/928e56d21150da0413a3333a3148b20e741a920c">https://github.com/npm/node-semver/commit/928e56d21150da0413a3333a3148b20e741a920c</a>
+          <a href="https://github.com/npm/node-semver/pull/564">https://github.com/npm/node-semver/pull/564</a>
+          <a href="https://github.com/npm/node-semver/pull/585">https://github.com/npm/node-semver/pull/585</a>
+          <a href="https://github.com/npm/node-semver/pull/593">https://github.com/npm/node-semver/pull/593</a>
+          <a href="https://linux.oracle.com/cve/CVE-2022-25883.html">https://linux.oracle.com/cve/CVE-2022-25883.html</a>
+          <a href="https://linux.oracle.com/errata/ELSA-2023-5363.html">https://linux.oracle.com/errata/ELSA-2023-5363.html</a>
+          <a href="https://nvd.nist.gov/vuln/detail/CVE-2022-25883">https://nvd.nist.gov/vuln/detail/CVE-2022-25883</a>
+          <a href="https://security.snyk.io/vuln/SNYK-JS-SEMVER-3247795">https://security.snyk.io/vuln/SNYK-JS-SEMVER-3247795</a>
+          <a href="https://www.cve.org/CVERecord?id=CVE-2022-25883">https://www.cve.org/CVERecord?id=CVE-2022-25883</a>
+        </td>
+      </tr>
+      <tr class="severity-MEDIUM">
+        <td class="pkg-name">semver</td>
+        <td>CVE-2022-25883</td>
+        <td class="severity">MEDIUM</td>
+        <td class="pkg-version">7.3.7</td>
+        <td>7.5.2, 6.3.1, 5.7.2</td>
+        <td class="links" data-more-links="off">
+          <a href="https://access.redhat.com/errata/RHSA-2023:5363">https://access.redhat.com/errata/RHSA-2023:5363</a>
+          <a href="https://access.redhat.com/security/cve/CVE-2022-25883">https://access.redhat.com/security/cve/CVE-2022-25883</a>
+          <a href="https://bugzilla.redhat.com/2216475">https://bugzilla.redhat.com/2216475</a>
+          <a href="https://bugzilla.redhat.com/2230948">https://bugzilla.redhat.com/2230948</a>
+          <a href="https://bugzilla.redhat.com/2230955">https://bugzilla.redhat.com/2230955</a>
+          <a href="https://bugzilla.redhat.com/2230956">https://bugzilla.redhat.com/2230956</a>
+          <a href="https://errata.almalinux.org/9/ALSA-2023-5363.html">https://errata.almalinux.org/9/ALSA-2023-5363.html</a>
+          <a href="https://github.com/advisories/GHSA-c2qf-rxjj-qqgw">https://github.com/advisories/GHSA-c2qf-rxjj-qqgw</a>
+          <a href="https://github.com/npm/node-semver">https://github.com/npm/node-semver</a>
+          <a href="https://github.com/npm/node-semver/blob/main/classes/range.js#L97-L104">https://github.com/npm/node-semver/blob/main/classes/range.js#L97-L104</a>
+          <a href="https://github.com/npm/node-semver/blob/main/classes/range.js%23L97-L104">https://github.com/npm/node-semver/blob/main/classes/range.js%23L97-L104</a>
+          <a href="https://github.com/npm/node-semver/blob/main/internal/re.js#L138">https://github.com/npm/node-semver/blob/main/internal/re.js#L138</a>
+          <a href="https://github.com/npm/node-semver/blob/main/internal/re.js#L160">https://github.com/npm/node-semver/blob/main/internal/re.js#L160</a>
+          <a href="https://github.com/npm/node-semver/blob/main/internal/re.js%23L138">https://github.com/npm/node-semver/blob/main/internal/re.js%23L138</a>
+          <a href="https://github.com/npm/node-semver/blob/main/internal/re.js%23L160">https://github.com/npm/node-semver/blob/main/internal/re.js%23L160</a>
+          <a href="https://github.com/npm/node-semver/commit/2f8fd41487acf380194579ecb6f8b1bbfe116be0">https://github.com/npm/node-semver/commit/2f8fd41487acf380194579ecb6f8b1bbfe116be0</a>
+          <a href="https://github.com/npm/node-semver/commit/717534ee353682f3bcf33e60a8af4292626d4441">https://github.com/npm/node-semver/commit/717534ee353682f3bcf33e60a8af4292626d4441</a>
+          <a href="https://github.com/npm/node-semver/commit/928e56d21150da0413a3333a3148b20e741a920c">https://github.com/npm/node-semver/commit/928e56d21150da0413a3333a3148b20e741a920c</a>
+          <a href="https://github.com/npm/node-semver/pull/564">https://github.com/npm/node-semver/pull/564</a>
+          <a href="https://github.com/npm/node-semver/pull/585">https://github.com/npm/node-semver/pull/585</a>
+          <a href="https://github.com/npm/node-semver/pull/593">https://github.com/npm/node-semver/pull/593</a>
+          <a href="https://linux.oracle.com/cve/CVE-2022-25883.html">https://linux.oracle.com/cve/CVE-2022-25883.html</a>
+          <a href="https://linux.oracle.com/errata/ELSA-2023-5363.html">https://linux.oracle.com/errata/ELSA-2023-5363.html</a>
+          <a href="https://nvd.nist.gov/vuln/detail/CVE-2022-25883">https://nvd.nist.gov/vuln/detail/CVE-2022-25883</a>
+          <a href="https://security.snyk.io/vuln/SNYK-JS-SEMVER-3247795">https://security.snyk.io/vuln/SNYK-JS-SEMVER-3247795</a>
+          <a href="https://www.cve.org/CVERecord?id=CVE-2022-25883">https://www.cve.org/CVERecord?id=CVE-2022-25883</a>
+        </td>
+      </tr>
+      <tr><th colspan="6">No Misconfigurations found</th></tr>
+    </table>
+  </body>
+</html>
