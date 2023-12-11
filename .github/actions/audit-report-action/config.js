@@ -5,7 +5,7 @@ export const Config = {
   projects: core.getInput('projects').split(','),
   includeDevDependencies: core.getInput('include-dev-dependencies') === 'true',
   includeUnfixed: core.getInput('include-unfixed') === 'true',
-  severityLevels: core.getInput('severity-levels'),
+  severityLevels: core.getInput('severity-levels') || "CRITICAL,HIGH,MEDIUM,LOW",
   token: core.getInput('token'),
   issueTitlePrefix: core.getInput('issue_title_prefix') || 'Security Report:',
   octokit: github.getOctokit(core.getInput('token')),
@@ -19,10 +19,6 @@ export function validateConfig() {
 
   if (!projects) {
     throw new Error('Input project names are required');
-  }
-
-  if (!severityLevels) {
-    throw new Error('Input severity levels are required');
   }
 
   if (!token) {

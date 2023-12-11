@@ -1,14 +1,21 @@
-const { runAudit, runContainerAudit } = require('./audit');
+const { runAudit, runContainerAudit, runVulnerabilityAudit } = require('./audit');
 const { validateConfig, Config } = require('./config');
 const { createOrUpdateIssues } = require('./issue');
 
 const run = async function() {
   const prov_result = await runContainerAudit("provisioning");
+  const app_result = await runVulnerabilityAudit("provisioning");
 
   await Config.octokit.rest.issues.create({
     ...Config.repo,
     title: "Test Image",
     body: prov_result,
+    labels: ["security"]
+  });
+  await Config.octokit.rest.issues.create({
+    ...Config.repo,
+    title: "Test Vulnerability",
+    body: app_result,
     labels: ["security"]
   });
 }

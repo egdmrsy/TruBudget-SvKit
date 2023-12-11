@@ -11,9 +11,11 @@ export async function runContainerAudit(projectName) {
 
   console.info(`\nAuditing image ${imageName}...`);
 
-  const additionalArgs = ["image", imageName, "--format", "template", "--template", "@./.github/actions/audit-report-action/htmltemp.tpl", "--exit-code", "1", "--vuln-type", "os", "--severity", "CRITICAL,HIGH,MEDIUM,LOW"];
+  const additionalArgs = ["image", imageName, "--format", "json", "--exit-code", "1", "--vuln-type", "os"];
+  additionalArgs.push("--severity", Config.severityLevels);
+
   if (!Config.includeUnfixed) {
-    options.push("--ignore-unfixed");
+    additionalArgs.push("--ignore-unfixed");
   }
 
   const result = child_process.spawnSync("trivy", additionalArgs, {
@@ -28,6 +30,30 @@ export async function runContainerAudit(projectName) {
   return result.stdout;
 }
 
+export async function runVulnerabilityAudit(projectName) {
+  console.info(`\nAuditing Project ${projectName}...`);
+
+  const additionalArgs = ["fs", `./${projectName}`, "--format", "json", "--exit-code", "1"];
+  additionalArgs.push("--severity", Config.severityLevels);
+
+  if (Config.includeDevDependencies) {
+    additionalArgs.push("--include-dev-deps");
+  }
+
+  if (!Config.includeUnfixed) {
+    additionalArgs.push("--ignore-unfixed");
+  }
+
+  const result = child_process.spawnSync("trivy", additionalArgs, {
+    encoding: 'utf-8',
+    maxBuffer: Config.spawnProcessBufferSize
+  });
+
+  console.log(result);
+
+  return result.stdout;
+
+}
 
 export async function runAudit(projectName) {
   if (!projectName) {

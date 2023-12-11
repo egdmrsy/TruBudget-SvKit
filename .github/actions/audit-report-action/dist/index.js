@@ -11,7 +11,8 @@ __nccwpck_require__.r(__webpack_exports__);
 // EXPORTS
 __nccwpck_require__.d(__webpack_exports__, {
   "runAudit": () => (/* binding */ runAudit),
-  "runContainerAudit": () => (/* binding */ runContainerAudit)
+  "runContainerAudit": () => (/* binding */ runContainerAudit),
+  "runVulnerabilityAudit": () => (/* binding */ runVulnerabilityAudit)
 });
 
 // EXTERNAL MODULE: ./config.js
@@ -51,9 +52,11 @@ async function runContainerAudit(projectName) {
 
   console.info(`\nAuditing image ${imageName}...`);
 
-  const additionalArgs = ["image", imageName, "--format", "template", "--template", "@./.github/actions/audit-report-action/htmltemp.tpl", "--exit-code", "1", "--vuln-type", "os", "--severity", "CRITICAL,HIGH,MEDIUM,LOW"];
+  const additionalArgs = ["image", imageName, "--format", "json", "--exit-code", "1", "--vuln-type", "os"];
+  additionalArgs.push("--severity", config.Config.severityLevels);
+
   if (!config.Config.includeUnfixed) {
-    options.push("--ignore-unfixed");
+    additionalArgs.push("--ignore-unfixed");
   }
 
   const result = external_child_process_default().spawnSync("trivy", additionalArgs, {
@@ -68,6 +71,30 @@ async function runContainerAudit(projectName) {
   return result.stdout;
 }
 
+async function runVulnerabilityAudit(projectName) {
+  console.info(`\nAuditing Project ${projectName}...`);
+
+  const additionalArgs = ["fs", `./${projectName}`, "--format", "json", "--exit-code", "1"];
+  additionalArgs.push("--severity", config.Config.severityLevels);
+
+  if (config.Config.includeDevDependencies) {
+    additionalArgs.push("--include-dev-deps");
+  }
+
+  if (!config.Config.includeUnfixed) {
+    additionalArgs.push("--ignore-unfixed");
+  }
+
+  const result = external_child_process_default().spawnSync("trivy", additionalArgs, {
+    encoding: 'utf-8',
+    maxBuffer: config.Config.spawnProcessBufferSize
+  });
+
+  console.log(result);
+
+  return result.stdout;
+
+}
 
 async function runAudit(projectName) {
   if (!projectName) {
@@ -128,7 +155,7 @@ const Config = {
   projects: core.getInput('projects').split(','),
   includeDevDependencies: core.getInput('include-dev-dependencies') === 'true',
   includeUnfixed: core.getInput('include-unfixed') === 'true',
-  severityLevels: core.getInput('severity-levels'),
+  severityLevels: core.getInput('severity-levels') || "CRITICAL,HIGH,MEDIUM,LOW",
   token: core.getInput('token'),
   issueTitlePrefix: core.getInput('issue_title_prefix') || 'Security Report:',
   octokit: github.getOctokit(core.getInput('token')),
@@ -142,10 +169,6 @@ function validateConfig() {
 
   if (!projects) {
     throw new Error('Input project names are required');
-  }
-
-  if (!severityLevels) {
-    throw new Error('Input severity levels are required');
   }
 
   if (!token) {
@@ -31111,17 +31134,24 @@ module.exports = parseParams
 var __webpack_exports__ = {};
 // This entry need to be wrapped in an IIFE because it need to be isolated against other modules in the chunk.
 (() => {
-const { runAudit, runContainerAudit } = __nccwpck_require__(6024);
+const { runAudit, runContainerAudit, runVulnerabilityAudit } = __nccwpck_require__(6024);
 const { validateConfig, Config } = __nccwpck_require__(152);
 const { createOrUpdateIssues } = __nccwpck_require__(9853);
 
 const run = async function() {
   const prov_result = await runContainerAudit("provisioning");
+  const app_result = await runVulnerabilityAudit("provisioning");
 
   await Config.octokit.rest.issues.create({
     ...Config.repo,
     title: "Test Image",
     body: prov_result,
+    labels: ["security"]
+  });
+  await Config.octokit.rest.issues.create({
+    ...Config.repo,
+    title: "Test Vulnerability",
+    body: app_result,
     labels: ["security"]
   });
 }
