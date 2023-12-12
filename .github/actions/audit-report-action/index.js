@@ -36,7 +36,6 @@ async function doFsAudit() {
   for (let i = 0; i < projectsVulnerabilities.length; i++) {
     const projectName = Config.projects[i];
     const projectVulnerabilities = projectsVulnerabilities[i];
-    console.info(projectVulnerabilities.toString());
     for (const projectVulnerability of projectVulnerabilities) {
       const id = projectVulnerability.id;
       if (vulnerabilityIdProjectMapping.has(id)){

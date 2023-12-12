@@ -15,10 +15,10 @@ export async function createOrUpdateIssues(vulnerabilityIdProjectMapping, active
 
   const issueTitle = type === "fs" ? `${issueTitlePrefix} Project Vulnerabilities` : `${issueTitlePrefix} Image Vulnerabilities`;
 
-  securityOpenIssues.forEach(issue => console.log(issue.title === issueTitle));
-  securityOpenIssues.forEach(issue => console.log(issue.title == issueTitle));
-  const vulnerabilityIssue = securityOpenIssues.find(issue => issue.title.includes("Project Vulnerabilities"));
-
+  const vulnerabilityIssue = securityOpenIssues.find(issue => issue.title === issueTitle);
+  const d = securityOpenIssues.filter(i => i.title === issueTitle)[0];
+  console.info(vulnerabilityIssue);
+  console.info(d);
   if(vulnerabilityIssue && activeVulnerabilities > 0) {
     await updateExistingIssue(vulnerabilityIssue, vulnerabilityIdProjectMapping);
   } 
@@ -26,7 +26,6 @@ export async function createOrUpdateIssues(vulnerabilityIdProjectMapping, active
     await closeIssue(vulnerabilityIssue.number);
   }
   else {
-    console.info(activeVulnerabilities);
     await createNewIssue(activeVulnerabilities, vulnerabilityIdProjectMapping, issueTitle);
   }
 

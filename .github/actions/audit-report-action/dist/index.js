@@ -174,10 +174,10 @@ async function createOrUpdateIssues(vulnerabilityIdProjectMapping, activeVulnera
 
   const issueTitle = type === "fs" ? `${issueTitlePrefix} Project Vulnerabilities` : `${issueTitlePrefix} Image Vulnerabilities`;
 
-  securityOpenIssues.forEach(issue => console.log(issue.title === issueTitle));
-  securityOpenIssues.forEach(issue => console.log(issue.title == issueTitle));
-  const vulnerabilityIssue = securityOpenIssues.find(issue => issue.title.includes("Project Vulnerabilities"));
-
+  const vulnerabilityIssue = securityOpenIssues.find(issue => issue.title === issueTitle);
+  const d = securityOpenIssues.filter(i => i.title === issueTitle)[0];
+  console.info(vulnerabilityIssue);
+  console.info(d);
   if(vulnerabilityIssue && activeVulnerabilities > 0) {
     await updateExistingIssue(vulnerabilityIssue, vulnerabilityIdProjectMapping);
   } 
@@ -185,7 +185,6 @@ async function createOrUpdateIssues(vulnerabilityIdProjectMapping, activeVulnera
     await closeIssue(vulnerabilityIssue.number);
   }
   else {
-    console.info(activeVulnerabilities);
     await createNewIssue(activeVulnerabilities, vulnerabilityIdProjectMapping, issueTitle);
   }
 
@@ -38696,7 +38695,6 @@ async function doFsAudit() {
   for (let i = 0; i < projectsVulnerabilities.length; i++) {
     const projectName = Config.projects[i];
     const projectVulnerabilities = projectsVulnerabilities[i];
-    console.info(projectVulnerabilities.toString());
     for (const projectVulnerability of projectVulnerabilities) {
       const id = projectVulnerability.id;
       if (vulnerabilityIdProjectMapping.has(id)){
