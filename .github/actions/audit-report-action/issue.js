@@ -1,4 +1,5 @@
 import { Config } from "./config";
+import { parse } from 'node-html-parser';
 
 const octokit = Config.octokit;
 const repo = Config.repo;
@@ -31,7 +32,11 @@ export async function createOrUpdateIssues(vulnerabilityIdProjectMapping, active
 
 async function updateExistingIssue(vulnerabilityIssue, vulnerabilities, vulnerabilityIdProjectMapping) {
   const issueNumber = vulnerabilityIssue.number;
-  let issueBody = vulnerabilityIssue.body.replace(/[0-9]{1,2}\/[0-9]{1,2}\/[0-9]{4}/gm, new Date(Date.now()).toLocaleDateString());
+  const root = parse(vulnerabilityIssue.body);
+  let newBody = "";
+  root.querySelector('#last-scan-date').set_content("test");
+  newBody = root.toString();
+  /*let issueBody = vulnerabilityIssue.body.replace(/[0-9]{1,2}\/[0-9]{1,2}\/[0-9]{4}/gm, new Date(Date.now()).toLocaleDateString());
   let appendClosingListTag = false;
 
   for (const affectedProject of affectedProjects) {
@@ -40,11 +45,11 @@ async function updateExistingIssue(vulnerabilityIssue, vulnerabilities, vulnerab
       issueBody = issueBody.replace(/\<\/ul\>/gm, element);
       appendClosingListTag = true;
     }
-  }
+  }*/
   await octokit.rest.issues.update({
     ...repo,
     issue_number: issueNumber,
-    body: appendClosingListTag ? issueBody.concat('</ul>') : issueBody
+    body: newBody
   });
 }
 
@@ -57,7 +62,7 @@ async function createNewIssue(vulnerabilities, vulnerabilityIdProjectMapping, is
       rows = rows.concat(row);
     }
   }
-  const newIssueBody = `<h2 id="last-scan-date-">Last scan date</h2>
+  const newIssueBody = `<h2 id="last-scan-date">Last scan date</h2>
     <p>${new Date(Date.now()).toLocaleDateString()}</p>
     <h2 id="vulnerability-header">Present Vulnerabilities</h2>
     <table>
