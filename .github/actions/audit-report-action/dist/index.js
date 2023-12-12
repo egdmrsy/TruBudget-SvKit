@@ -234,18 +234,18 @@ async function createNewIssue(vulnerabilities, vulnerabilityIdProjectMapping, is
   const root = (0,node_html_parser__WEBPACK_IMPORTED_MODULE_1__.parse)('');
   const table = root
     .insertAdjacentHTML('afterbegin', '<h2>Last scan date</h2>')
-    .insertAdjacentHTML('afterend', `<p id="last-scan-date">${new Date(Date.now()).toLocaleDateString()}</p>`)
+    .appendChild((0,node_html_parser__WEBPACK_IMPORTED_MODULE_1__.parse)(`<p id="last-scan-date">${new Date(Date.now()).toLocaleDateString()}</p>`))
     .insertAdjacentHTML('afterend', '<h2 id="vulnerability-header">Present Vulnerabilities</h2>')
     .insertAdjacentHTML('afterend', '<table></table>');
 
-  table.insertAdjacentHTML('afterbegin', '<thead><tr><th>Vulnerability ID</th><th>PkgName</th><th>Title</th><th>Severity</th><th>Status</th><th>Fixed Version</th><th>Published Date</th><th>Affects</th><th>Links</th></tr></thead>');
-  const tableBody = table.insertAdjacentHTML('beforeend', '<tbody id="table-body"></tbody>');
+  table.appendChild((0,node_html_parser__WEBPACK_IMPORTED_MODULE_1__.parse)('<thead><tr><th>Vulnerability ID</th><th>PkgName</th><th>Title</th><th>Severity</th><th>Status</th><th>Fixed Version</th><th>Published Date</th><th>Affects</th><th>Links</th></tr></thead>'));
+  const tableBody = table.appendChild((0,node_html_parser__WEBPACK_IMPORTED_MODULE_1__.parse)('<tbody id="table-body"></tbody>'));
 
   for(const vulnerability of vulnerabilities) {
     if(vulnerability.links && Array.isArray(vulnerability.links) && vulnerability.links.length > 0) {
       tableBody
-        .insertAdjacentHTML('afterbegin', `<tr id="${vulnerability.id}"></tr>`)
-        .insertAdjacentHTML('beforeend', `<td>${vulnerability.id}</td>`)
+        .appendChild((0,node_html_parser__WEBPACK_IMPORTED_MODULE_1__.parse)(`<tr id="${vulnerability.id}"></tr>`))
+        .appendChild((0,node_html_parser__WEBPACK_IMPORTED_MODULE_1__.parse)(`<td>${vulnerability.id}</td>`))
         .insertAdjacentHTML('afterend', `<td>${vulnerability.packageName}</td>`)
         .insertAdjacentHTML('afterend', `<td>${vulnerability.title}</td>`)
         .insertAdjacentHTML('afterend', `<td>${vulnerability.severity}</td>`)
