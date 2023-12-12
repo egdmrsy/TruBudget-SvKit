@@ -46,9 +46,9 @@ export async function performFsAudit(projectName) {
     encoding: 'utf-8',
     maxBuffer: Config.spawnProcessBufferSize
   });
-  console.info(result.stdout);
-
-  return extractVulnerabilities(result.stdout);
+  const v = extractVulnerabilities(result.stdout);
+  console.info(v.toString());
+  return v;
 }
 
 

@@ -86,9 +86,9 @@ async function performFsAudit(projectName) {
     encoding: 'utf-8',
     maxBuffer: config.Config.spawnProcessBufferSize
   });
-  console.info(result.stdout);
-
-  return extractVulnerabilities(result.stdout);
+  const v = extractVulnerabilities(result.stdout);
+  console.info(v.toString());
+  return v;
 }
 
 
@@ -31139,7 +31139,7 @@ async function doFsAudit() {
   for (let i = 0; i < projectsVulnerabilities.length; i++) {
     const projectName = Config.projects[i];
     const projectVulnerabilities = projectsVulnerabilities[i];
-
+    console.info(projectVulnerabilities.toString());
     for (const projectVulnerability of projectVulnerabilities) {
       const id = projectVulnerability.id;
       if (vulnerabilityIdProjectMapping.has(id)){
@@ -31150,6 +31150,7 @@ async function doFsAudit() {
       }
     }
   }
+  
   await createOrUpdateIssues(vulnerabilityIdProjectMapping, activeVulnerabilities, 'fs');
 }
 
