@@ -16,14 +16,14 @@ export async function createOrUpdateIssues(vulnerabilityIdProjectMapping, active
   const vulnerabilityIssue = securityOpenIssues.find(issue => issue.title === issueTitle);
 
   if(vulnerabilityIssue && activeVulnerabilities > 0) {
-    return updateExistingIssue(vulnerabilityIssue, vulnerabilityIdProjectMapping);
+    await updateExistingIssue(vulnerabilityIssue, vulnerabilityIdProjectMapping);
   } 
   else if(vulnerabilityIssue && activeVulnerabilities == 0) {
-    return closeIssue(vulnerabilityIssue.number);
+    await closeIssue(vulnerabilityIssue.number);
   }
   else {
     console.info(activeVulnerabilities);
-    return createNewIssue(activeVulnerabilities, vulnerabilityIdProjectMapping, issueTitle);
+    await createNewIssue(activeVulnerabilities, vulnerabilityIdProjectMapping, issueTitle);
   }
 
  
@@ -41,7 +41,7 @@ async function updateExistingIssue(vulnerabilityIssue, vulnerabilities, vulnerab
       appendClosingListTag = true;
     }
   }
-  return octokit.rest.issues.update({
+  await octokit.rest.issues.update({
     ...repo,
     issue_number: issueNumber,
     body: appendClosingListTag ? issueBody.concat('</ul>') : issueBody
@@ -79,7 +79,7 @@ async function createNewIssue(vulnerabilities, vulnerabilityIdProjectMapping, is
       </tbody>
     </table>`;
 
-  return octokit.rest.issues.create({
+  await octokit.rest.issues.create({
     ...repo,
     title: issueTitle,
     body: newIssueBody,
@@ -88,5 +88,5 @@ async function createNewIssue(vulnerabilities, vulnerabilityIdProjectMapping, is
 }
 
 async function closeIssue(issueNumber) {
-  return octokit.rest.issues.update({ ...repo, issue_number: issueNumber, state: 'closed' });
+  await octokit.rest.issues.update({ ...repo, issue_number: issueNumber, state: 'closed' });
 }
