@@ -14,7 +14,9 @@ export async function createOrUpdateIssues(vulnerabilityIdProjectMapping, active
   });
 
   const issueTitle = type === "fs" ? `${issueTitlePrefix} Project Vulnerabilities` : `${issueTitlePrefix} Image Vulnerabilities`;
-  const vulnerabilityIssue = securityOpenIssues.find(issue => issue.title.includes(issueTitle));
+  console.info(issueTitle);
+  securityOpenIssues.forEach(issue => console.log(issue.title));
+  const vulnerabilityIssue = securityOpenIssues.find(issue => issue.title.includes("Project Vulnerabilities"));
 
   if(vulnerabilityIssue && activeVulnerabilities > 0) {
     await updateExistingIssue(vulnerabilityIssue, vulnerabilityIdProjectMapping);
