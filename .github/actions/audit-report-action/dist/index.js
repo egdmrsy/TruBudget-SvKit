@@ -176,7 +176,7 @@ async function createOrUpdateIssues(vulnerabilityIdProjectMapping, activeVulnera
 
   const vulnerabilityIssue = securityOpenIssues.find(issue => issue.title === issueTitle);
   if(vulnerabilityIssue && activeVulnerabilities.length > 0) {
-    await updateExistingIssue(vulnerabilityIssue, vulnerabilityIdProjectMapping);
+    await updateExistingIssue(vulnerabilityIssue, activeVulnerabilities, vulnerabilityIdProjectMapping);
   } 
   else if(vulnerabilityIssue && activeVulnerabilities.length == 0) {
     await closeIssue(vulnerabilityIssue.number);
@@ -184,8 +184,6 @@ async function createOrUpdateIssues(vulnerabilityIdProjectMapping, activeVulnera
   else {
     await createNewIssue(activeVulnerabilities, vulnerabilityIdProjectMapping, issueTitle);
   }
-
- 
 }
 
 async function updateExistingIssue(vulnerabilityIssue, activeVulnerabilities, vulnerabilityIdProjectMapping) {
