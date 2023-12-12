@@ -207,7 +207,7 @@ async function updateExistingIssue(vulnerabilityIssue, activeVulnerabilities, vu
       const issueProjects = children.map(node => node.innerText);
       affectedProjects.forEach(proj => {
         if(!issueProjects.includes(proj)) {
-          projectParentList.appendChild((0,node_html_parser__WEBPACK_IMPORTED_MODULE_1__.parse)(`<li>${proj}</li>`));
+          projectParentList.insertAdjacentHTML('beforeend', `<li>${proj}</li>`);
         }
       });
     } 
@@ -219,7 +219,7 @@ async function updateExistingIssue(vulnerabilityIssue, activeVulnerabilities, vu
     if(!currentIds.includes(vulnerability.id)) {
       const row = `<tr id="${vulnerability.id}"><td>${vulnerability.id}</td><td>${vulnerability.packageName}</td><td>${vulnerability.title}</td><td>${vulnerability.severity}</td><td>${vulnerability.status}</td><td>${vulnerability.fixedVersion}</td><td>${vulnerability.publishedDate}</td><td><ul id="${vulnerability.id}-projects">${vulnerabilityIdProjectMapping.get(vulnerability.id).map(project => `<li>${project}</li>`).join("")}</ul></td><td><ul>${vulnerability.links.filter(link => link.includes("GHSA" || 0)).map(link => `<li><a href="${link}">${link}</a></li>`).join('')}</ul></td></tr>`;
       const parent = root.querySelector("#table-body");
-      parent.appendChild((0,node_html_parser__WEBPACK_IMPORTED_MODULE_1__.parse)(row));
+      parent.insertAdjacentHTML('beforeend', row);
     }
   });
 
@@ -233,27 +233,27 @@ async function updateExistingIssue(vulnerabilityIssue, activeVulnerabilities, vu
 async function createNewIssue(vulnerabilities, vulnerabilityIdProjectMapping, issueTitle) {
   const root = (0,node_html_parser__WEBPACK_IMPORTED_MODULE_1__.parse)('');
   const table = root
-    .insertAdjacentHTML((0,node_html_parser__WEBPACK_IMPORTED_MODULE_1__.parse)('<h2>Last scan date</h2>'))
-    .insertAdjacentHTML((0,node_html_parser__WEBPACK_IMPORTED_MODULE_1__.parse)(`<p id="last-scan-date">${new Date(Date.now()).toLocaleDateString()}</p>`))
-    .insertAdjacentHTML((0,node_html_parser__WEBPACK_IMPORTED_MODULE_1__.parse)('<h2 id="vulnerability-header">Present Vulnerabilities</h2>'))
-    .insertAdjacentHTML((0,node_html_parser__WEBPACK_IMPORTED_MODULE_1__.parse)('<table></table>'));
+    .insertAdjacentHTML('afterbegin', '<h2>Last scan date</h2>')
+    .insertAdjacentHTML('afterend', `<p id="last-scan-date">${new Date(Date.now()).toLocaleDateString()}</p>`)
+    .insertAdjacentHTML('afterend', '<h2 id="vulnerability-header">Present Vulnerabilities</h2>')
+    .insertAdjacentHTML('afterend', '<table></table>');
 
-  table.appendChild((0,node_html_parser__WEBPACK_IMPORTED_MODULE_1__.parse)('<thead><tr><th>Vulnerability ID</th><th>PkgName</th><th>Title</th><th>Severity</th><th>Status</th><th>Fixed Version</th><th>Published Date</th><th>Affects</th><th>Links</th></tr></thead>'));
-  const tableBody = table.appendChild((0,node_html_parser__WEBPACK_IMPORTED_MODULE_1__.parse)('<tbody id="table-body"></tbody>'));
+  table.insertAdjacentHTML('afterbegin', '<thead><tr><th>Vulnerability ID</th><th>PkgName</th><th>Title</th><th>Severity</th><th>Status</th><th>Fixed Version</th><th>Published Date</th><th>Affects</th><th>Links</th></tr></thead>');
+  const tableBody = table.insertAdjacentHTML('beforeend', '<tbody id="table-body"></tbody>');
 
   for(const vulnerability of vulnerabilities) {
     if(vulnerability.links && Array.isArray(vulnerability.links) && vulnerability.links.length > 0) {
       tableBody
-        .appendChild(`<tr id="${vulnerability.id}"></tr>`)
-        .appendChild(`<td>${vulnerability.id}</td>`)
-        .insertAdjacentHTML(`<td>${vulnerability.packageName}</td>`)
-        .insertAdjacentHTML(`<td>${vulnerability.title}</td>`)
-        .insertAdjacentHTML(`<td>${vulnerability.severity}</td>`)
-        .insertAdjacentHTML(`<td>${vulnerability.status}</td>`)
-        .insertAdjacentHTML(`<td>${vulnerability.fixedVersion}</td>`)
-        .insertAdjacentHTML(`<td>${vulnerability.publishedDate}</td>`)
-        .insertAdjacentHTML(`<td><ul id="${vulnerability.id}-projects">${vulnerabilityIdProjectMapping.get(vulnerability.id).map(project => `<li>${project}</li>`).join("")}</ul></td>`)
-        .insertAdjacentHTML(`<td><ul>${vulnerability.links.filter(link => link.includes("GHSA" || 0)).map(link => `<li><a href="${link}">${link}</a></li>`).join('')}</ul></td>`);
+        .insertAdjacentHTML('afterbegin', `<tr id="${vulnerability.id}"></tr>`)
+        .insertAdjacentHTML('beforeend', `<td>${vulnerability.id}</td>`)
+        .insertAdjacentHTML('afterend', `<td>${vulnerability.packageName}</td>`)
+        .insertAdjacentHTML('afterend', `<td>${vulnerability.title}</td>`)
+        .insertAdjacentHTML('afterend', `<td>${vulnerability.severity}</td>`)
+        .insertAdjacentHTML('afterend', `<td>${vulnerability.status}</td>`)
+        .insertAdjacentHTML('afterend', `<td>${vulnerability.fixedVersion}</td>`)
+        .insertAdjacentHTML('afterend', `<td>${vulnerability.publishedDate}</td>`)
+        .insertAdjacentHTML('afterend', `<td><ul id="${vulnerability.id}-projects">${vulnerabilityIdProjectMapping.get(vulnerability.id).map(project => `<li>${project}</li>`).join("")}</ul></td>`)
+        .insertAdjacentHTML('afterend', `<td><ul>${vulnerability.links.filter(link => link.includes("GHSA" || 0)).map(link => `<li><a href="${link}">${link}</a></li>`).join('')}</ul></td>`);
       
     }
   }
