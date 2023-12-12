@@ -47,7 +47,7 @@ export async function performFsAudit(projectName) {
     maxBuffer: Config.spawnProcessBufferSize
   });
   const v = extractVulnerabilities(result.stdout);
-  console.info(v.length);
+  console.info(Object.values(stdout.Results));
   return v;
 }
 
