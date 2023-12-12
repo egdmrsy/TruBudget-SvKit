@@ -192,7 +192,7 @@ async function updateExistingIssue(vulnerabilityIssue, activeVulnerabilities, vu
   const issueNumber = vulnerabilityIssue.number;
   const root = (0,node_html_parser__WEBPACK_IMPORTED_MODULE_1__.parse)(vulnerabilityIssue.body);
   root.querySelector('#last-scan-date').set_content(new Date(Date.now()).toLocaleDateString());
-  const currentIds = root.querySelectorAll('tr').map(elem => elem.id);
+  const currentIds = root.querySelectorAll('tr').filter(elem => elem.id && elem.id !== '').map(elem => elem.id);
   currentIds.forEach(id => {
     if(vulnerabilityIdProjectMapping.has(id)) {
       const affectedProjects = vulnerabilityIdProjectMapping.get(id);
