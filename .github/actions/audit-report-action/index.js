@@ -47,7 +47,6 @@ async function doFsAudit() {
       }
     }
   }
-  
   await createOrUpdateIssues(vulnerabilityIdProjectMapping, activeVulnerabilities, 'fs');
 }
 

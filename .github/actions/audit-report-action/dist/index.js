@@ -210,7 +210,7 @@ async function createNewIssue(vulnerabilities, vulnerabilityIdProjectMapping, is
   let rows = '';
   for(const vulnerability of vulnerabilities) {
     if(vulnerability.links && Array.isArray(vulnerability.links) && vulnerability.links.length > 0) {
-      const row = `<tr><td>${vulnerability.id}</td><td>${vulnerability.packageName}</td><td>${vulnerability.title}</td><td>${vulnerability.severity}</td><td>${vulnerability.status}</td><td>${vulnerability.fixedVersion}</td><td>${vulnerability.publishedDate}</td><td><ul>${vulnerabilityIdProjectMapping.get(vulnerability.id).map(project => `<li>${project}</li>`).join("")}</ul></td><td><ul>${vulnerability.links.map(link => `<li><a href="${link}">${link}</a></li>`).join('')}</ul></td></tr>`;
+      const row = `<tr><td>${vulnerability.id}</td><td>${vulnerability.packageName}</td><td>${vulnerability.title}</td><td>${vulnerability.severity}</td><td>${vulnerability.status}</td><td>${vulnerability.fixedVersion}</td><td>${vulnerability.publishedDate}</td><td><ul>${vulnerabilityIdProjectMapping.get(vulnerability.id).map(project => `<li>${project}</li>`).join("")}</ul></td><td><ul>${vulnerability.links.filter(link => link.includes("GHSA" || 0)).map(link => `<li><a href="${link}">${link}</a></li>`).join('')}</ul></td></tr>`;
       rows = rows.concat(row);
     }
   }
@@ -31145,7 +31145,6 @@ async function doFsAudit() {
       }
     }
   }
-  
   await createOrUpdateIssues(vulnerabilityIdProjectMapping, activeVulnerabilities, 'fs');
 }
 
