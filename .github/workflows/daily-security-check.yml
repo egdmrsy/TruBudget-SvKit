@@ -25,7 +25,7 @@ jobs:
         uses: ./.github/actions/audit-report-action
         with:
           projects: frontend,api,blockchain,provisioning,e2e-test,excel-export-service,email-notification-service,storage-service,logging-service,migration
-          include-dev-dependencies: false
+          include-dev-dependencies: true
           issue_title_prefix: "Security Report:"
           include-unfixed: true
           severity-levels: CRITICAL,HIGH,MEDIUM,LOW
