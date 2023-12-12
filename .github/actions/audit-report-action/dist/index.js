@@ -239,7 +239,6 @@ async function createNewIssue(vulnerabilities, vulnerabilityIdProjectMapping, is
           <th>Links</th>
         </tr>
       </thead>
-      <tbody>
        ${rows}
       </tbody>
     </table>`;
