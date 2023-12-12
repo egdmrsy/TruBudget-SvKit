@@ -176,8 +176,6 @@ async function createOrUpdateIssues(vulnerabilityIdProjectMapping, activeVulnera
     labels: ['security']
   });
 
-  
-
   const issueTitle = type === "fs" ? `${issueTitlePrefix} Project Vulnerabilities`: `${issueTitlePrefix} Image Vulnerabilities`;
   const vulnerabilityIssue = securityOpenIssues.find(issue => issue.title === issueTitle);
 
@@ -188,6 +186,7 @@ async function createOrUpdateIssues(vulnerabilityIdProjectMapping, activeVulnera
     return closeIssue(vulnerabilityIssue.number);
   }
   else {
+    console.info(activeVulnerabilities);
     return createNewIssue(activeVulnerabilities, vulnerabilityIdProjectMapping, issueTitle);
   }
 
