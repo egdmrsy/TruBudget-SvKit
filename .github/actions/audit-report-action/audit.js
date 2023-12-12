@@ -46,9 +46,7 @@ export async function performFsAudit(projectName) {
     encoding: 'utf-8',
     maxBuffer: Config.spawnProcessBufferSize
   });
-  if(projectName === "migration") {
-    console.info(result.stdout);
-  }
+  console.info(result.stdout);
 
   return extractVulnerabilities(result.stdout);
 }
