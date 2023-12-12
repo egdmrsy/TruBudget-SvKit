@@ -35,18 +35,16 @@ async function updateExistingIssue(vulnerabilityIssue, activeVulnerabilities, vu
   currentIds.forEach(id => {
     if(vulnerabilityIdProjectMapping.has(id)) {
       const affectedProjects = vulnerabilityIdProjectMapping.get(id);
-      const projectParentList = root.querySelector(`#${id}-projects`);
-      const children = projectParentList.childNodes;
       
-      children.forEach(node => {
+      root.querySelector(`#${id}-projects`).childNodes.forEach(node => {
         if(!affectedProjects.includes(node.innerText)) {
-          projectParentList.removeChild(node);
+          root.querySelector(`#${id}-projects`).removeChild(node);
         }
       });
-      const issueProjects = children.map(node => node.innerText);
+      const issueProjects = root.querySelector(`#${id}-projects`).childNodes.map(node => node.innerText);
       affectedProjects.forEach(proj => {
         if(!issueProjects.includes(proj)) {
-          projectParentList.appendChild(parse(`<li>${proj}</li>`));
+          root.querySelector(`#${id}-projects`).appendChild(parse(`<li>${proj}</li>`));
         }
       });
     } 
@@ -77,20 +75,20 @@ async function createNewIssue(vulnerabilities, vulnerabilityIdProjectMapping, is
   root.appendChild(parse('<table></table>'));
 
   root.querySelector('table').appendChild(parse('<thead><tr><th>Vulnerability ID</th><th>PkgName</th><th>Title</th><th>Severity</th><th>Status</th><th>Fixed Version</th><th>Published Date</th><th>Affects</th><th>Links</th></tr></thead>'));
-  const tableBody = root.querySelector('table').appendChild(parse('<tbody id="table-body"></tbody>'));
+  root.querySelector('table').appendChild(parse('<tbody id="table-body"></tbody>'));
 
   for(const vulnerability of vulnerabilities) {
     if(vulnerability.links && Array.isArray(vulnerability.links) && vulnerability.links.length > 0) {
-      const row = tableBody.appendChild(parse(`<tr id="${vulnerability.id}"></tr>`));
-      row.appendChild(parse(`<td>${vulnerability.id}</td>`));
-      row.appendChild(parse(`<td>${vulnerability.packageName}</td>`));
-      row.appendChild(parse(`<td>${vulnerability.title}</td>`));
-      row.appendChild(parse(`<td>${vulnerability.severity}</td>`));
-      row.appendChild(parse(`<td>${vulnerability.status}</td>`));
-      row.appendChild(parse(`<td>${vulnerability.fixedVersion}</td>`));
-      row.appendChild(parse(`<td>${vulnerability.publishedDate}</td>`));
-      row.appendChild(parse(`<td><ul id="${vulnerability.id}-projects">${vulnerabilityIdProjectMapping.get(vulnerability.id).map(project => `<li>${project}</li>`).join("")}</ul></td>`));
-      row.appendChild(parse(`<td><ul>${vulnerability.links.filter(link => link.includes("GHSA" || "nvd")).map(link => `<li><a href="${link}">${link}</a></li>`).join('')}</ul></td>`));
+      root.querySelector('#table-body').appendChild(parse(`<tr id="${vulnerability.id}"></tr>`));
+      root.querySelector(`#${vulnerability.id}`).appendChild(parse(`<td>${vulnerability.id}</td>`));
+      root.querySelector(`#${vulnerability.id}`).appendChild(parse(`<td>${vulnerability.packageName}</td>`));
+      root.querySelector(`#${vulnerability.id}`).appendChild(parse(`<td>${vulnerability.title}</td>`));
+      root.querySelector(`#${vulnerability.id}`).appendChild(parse(`<td>${vulnerability.severity}</td>`));
+      root.querySelector(`#${vulnerability.id}`).appendChild(parse(`<td>${vulnerability.status}</td>`));
+      root.querySelector(`#${vulnerability.id}`).appendChild(parse(`<td>${vulnerability.fixedVersion}</td>`));
+      root.querySelector(`#${vulnerability.id}`).appendChild(parse(`<td>${vulnerability.publishedDate}</td>`));
+      root.querySelector(`#${vulnerability.id}`).appendChild(parse(`<td><ul id="${vulnerability.id}-projects">${vulnerabilityIdProjectMapping.get(vulnerability.id).map(project => `<li>${project}</li>`).join("")}</ul></td>`));
+      root.querySelector(`#${vulnerability.id}`).appendChild(parse(`<td><ul>${vulnerability.links.filter(link => link.includes("GHSA" || "nvd")).map(link => `<li><a href="${link}">${link}</a></li>`).join('')}</ul></td>`));
     }
   }
 
