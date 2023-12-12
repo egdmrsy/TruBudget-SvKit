@@ -188,64 +188,80 @@ async function createOrUpdateIssues(vulnerabilityIdProjectMapping, activeVulnera
  
 }
 
-async function updateExistingIssue(vulnerabilityIssue, vulnerabilities, vulnerabilityIdProjectMapping) {
+async function updateExistingIssue(vulnerabilityIssue, activeVulnerabilities, vulnerabilityIdProjectMapping) {
   const issueNumber = vulnerabilityIssue.number;
   const root = (0,node_html_parser__WEBPACK_IMPORTED_MODULE_1__.parse)(vulnerabilityIssue.body);
-  let newBody = "";
-  root.querySelector('#last-scan-date').set_content("test");
-  newBody = root.toString();
-  /*let issueBody = vulnerabilityIssue.body.replace(/[0-9]{1,2}\/[0-9]{1,2}\/[0-9]{4}/gm, new Date(Date.now()).toLocaleDateString());
-  let appendClosingListTag = false;
-
-  for (const affectedProject of affectedProjects) {
-    const element = `<li>${affectedProject}</li>`;
-    if (!issueBody.includes(element)) {
-      issueBody = issueBody.replace(/\<\/ul\>/gm, element);
-      appendClosingListTag = true;
+  root.querySelector('#last-scan-date').set_content(new Date(Date.now()).toLocaleDateString());
+  const currentIds = root.querySelectorAll('tr').map(elem => elem.id);
+  currentIds.forEach(id => {
+    if(vulnerabilityIdProjectMapping.has(id)) {
+      const affectedProjects = vulnerabilityIdProjectMapping.get(id);
+      const projectParentList = root.querySelector(`#${id}-projects`);
+      const children = projectParentList.childNodes;
+      
+      children.forEach(node => {
+        if(!affectedProjects.includes(node.innerText)) {
+          projectParentList.removeChild(node);
+        }
+      });
+      const issueProjects = children.map(node => node.innerText);
+      affectedProjects.forEach(proj => {
+        if(!issueProjects.includes(proj)) {
+          projectParentList.appendChild((0,node_html_parser__WEBPACK_IMPORTED_MODULE_1__.parse)(`<li>${proj}</li>`));
+        }
+      });
+    } 
+    else {
+      root.querySelector(`#${id}`).remove();
     }
-  }*/
+  });
+  activeVulnerabilities.forEach(vulnerability => {
+    if(!currentIds.includes(vulnerability.id)) {
+      const row = `<tr id="${vulnerability.id}"><td>${vulnerability.id}</td><td>${vulnerability.packageName}</td><td>${vulnerability.title}</td><td>${vulnerability.severity}</td><td>${vulnerability.status}</td><td>${vulnerability.fixedVersion}</td><td>${vulnerability.publishedDate}</td><td><ul id="${vulnerability.id}-projects">${vulnerabilityIdProjectMapping.get(vulnerability.id).map(project => `<li>${project}</li>`).join("")}</ul></td><td><ul>${vulnerability.links.filter(link => link.includes("GHSA" || 0)).map(link => `<li><a href="${link}">${link}</a></li>`).join('')}</ul></td></tr>`;
+      const parent = root.querySelector("#table-body");
+      parent.appendChild((0,node_html_parser__WEBPACK_IMPORTED_MODULE_1__.parse)(row));
+    }
+  });
+
   await octokit.rest.issues.update({
     ...repo,
     issue_number: issueNumber,
-    body: newBody
+    body: root.toString()
   });
 }
 
 async function createNewIssue(vulnerabilities, vulnerabilityIdProjectMapping, issueTitle) {
- 
-  let rows = '';
+  const root = (0,node_html_parser__WEBPACK_IMPORTED_MODULE_1__.parse)('');
+  const table = root
+    .insertAdjacentHTML((0,node_html_parser__WEBPACK_IMPORTED_MODULE_1__.parse)('<h2>Last scan date</h2>'))
+    .insertAdjacentHTML((0,node_html_parser__WEBPACK_IMPORTED_MODULE_1__.parse)(`<p id="last-scan-date">${new Date(Date.now()).toLocaleDateString()}</p>`))
+    .insertAdjacentHTML((0,node_html_parser__WEBPACK_IMPORTED_MODULE_1__.parse)('<h2 id="vulnerability-header">Present Vulnerabilities</h2>'))
+    .insertAdjacentHTML((0,node_html_parser__WEBPACK_IMPORTED_MODULE_1__.parse)('<table></table>'));
+
+  table.appendChild((0,node_html_parser__WEBPACK_IMPORTED_MODULE_1__.parse)('<thead><tr><th>Vulnerability ID</th><th>PkgName</th><th>Title</th><th>Severity</th><th>Status</th><th>Fixed Version</th><th>Published Date</th><th>Affects</th><th>Links</th></tr></thead>'));
+  const tableBody = table.appendChild((0,node_html_parser__WEBPACK_IMPORTED_MODULE_1__.parse)('<tbody id="table-body"></tbody>'));
+
   for(const vulnerability of vulnerabilities) {
     if(vulnerability.links && Array.isArray(vulnerability.links) && vulnerability.links.length > 0) {
-      const row = `<tr><td>${vulnerability.id}</td><td>${vulnerability.packageName}</td><td>${vulnerability.title}</td><td>${vulnerability.severity}</td><td>${vulnerability.status}</td><td>${vulnerability.fixedVersion}</td><td>${vulnerability.publishedDate}</td><td><ul>${vulnerabilityIdProjectMapping.get(vulnerability.id).map(project => `<li>${project}</li>`).join("")}</ul></td><td><ul>${vulnerability.links.filter(link => link.includes("GHSA" || 0)).map(link => `<li><a href="${link}">${link}</a></li>`).join('')}</ul></td></tr>`;
-      rows = rows.concat(row);
+      tableBody
+        .appendChild(`<tr id="${vulnerability.id}"></tr>`)
+        .appendChild(`<td>${vulnerability.id}</td>`)
+        .insertAdjacentHTML(`<td>${vulnerability.packageName}</td>`)
+        .insertAdjacentHTML(`<td>${vulnerability.title}</td>`)
+        .insertAdjacentHTML(`<td>${vulnerability.severity}</td>`)
+        .insertAdjacentHTML(`<td>${vulnerability.status}</td>`)
+        .insertAdjacentHTML(`<td>${vulnerability.fixedVersion}</td>`)
+        .insertAdjacentHTML(`<td>${vulnerability.publishedDate}</td>`)
+        .insertAdjacentHTML(`<td><ul id="${vulnerability.id}-projects">${vulnerabilityIdProjectMapping.get(vulnerability.id).map(project => `<li>${project}</li>`).join("")}</ul></td>`)
+        .insertAdjacentHTML(`<td><ul>${vulnerability.links.filter(link => link.includes("GHSA" || 0)).map(link => `<li><a href="${link}">${link}</a></li>`).join('')}</ul></td>`);
+      
     }
   }
-  const newIssueBody = `<h2 id="last-scan-date">Last scan date</h2>
-    <p>${new Date(Date.now()).toLocaleDateString()}</p>
-    <h2 id="vulnerability-header">Present Vulnerabilities</h2>
-    <table>
-      <thead>
-        <tr>
-          <th>Vulnerability ID</th>
-          <th>PkgName</th>
-          <th>Title</th>
-          <th>Severity</th>
-          <th>Status</th>
-          <th>Fixed Version</th>
-          <th>Published Date</th>
-          <th>Affects</th>
-          <th>Links</th>
-        </tr>
-      </thead>
-      <tbody>
-       ${rows}
-      </tbody>
-    </table>`;
 
   await octokit.rest.issues.create({
     ...repo,
     title: issueTitle,
-    body: newIssueBody,
+    body: root.toString(),
     labels: ["security"]
   });
 }
