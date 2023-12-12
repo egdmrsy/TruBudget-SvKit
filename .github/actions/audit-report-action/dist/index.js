@@ -172,8 +172,8 @@ async function createOrUpdateIssues(vulnerabilityIdProjectMapping, activeVulnera
     labels: ['security']
   });
 
-  const issueTitle = type === "fs" ? `${issueTitlePrefix} Project Vulnerabilities`: `${issueTitlePrefix} Image Vulnerabilities`;
-  const vulnerabilityIssue = securityOpenIssues.find(issue => issue.title === issueTitle);
+  const issueTitle = type === "fs" ? `${issueTitlePrefix} Project Vulnerabilities` : `${issueTitlePrefix} Image Vulnerabilities`;
+  const vulnerabilityIssue = securityOpenIssues.find(issue => issue.title.includes(issueTitle));
 
   if(vulnerabilityIssue && activeVulnerabilities > 0) {
     await updateExistingIssue(vulnerabilityIssue, vulnerabilityIdProjectMapping);
