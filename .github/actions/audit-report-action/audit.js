@@ -47,7 +47,7 @@ export async function performFsAudit(projectName) {
     maxBuffer: Config.spawnProcessBufferSize
   });
   const v = extractVulnerabilities(result.stdout);
-  console.info(JSON.parse(result.stdout));
+  
   return v;
 }
 
@@ -56,6 +56,7 @@ function extractVulnerabilities(stdout) {
   if(!stdout.Results) {
     return [];
   }
+  console.info(JSON.parse(stdout.Results[0].Vulnerabilities));
   return Object.values(stdout.Results[0].Vulnerabilities).map(value => {
     return {
       id: value.VulnerabilityID, 
