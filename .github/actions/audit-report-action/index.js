@@ -4,6 +4,7 @@ const { createOrUpdateIssues } = require('./issue');
 
 const run = async function() {
   await doFsAudit();
+  await doImageAudit();
 }
 
 async function doImageAudit() {

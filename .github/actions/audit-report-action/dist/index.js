@@ -38669,6 +38669,7 @@ const { createOrUpdateIssues } = __nccwpck_require__(9853);
 
 const run = async function() {
   await doFsAudit();
+  await doImageAudit();
 }
 
 async function doImageAudit() {
