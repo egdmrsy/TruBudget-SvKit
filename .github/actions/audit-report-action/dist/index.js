@@ -234,7 +234,7 @@ async function createNewIssue(vulnerabilities, vulnerabilityIdProjectMapping, is
   const root = (0,node_html_parser__WEBPACK_IMPORTED_MODULE_1__.parse)('');
   const table = root
     .insertAdjacentHTML('afterbegin', '<h2>Last scan date</h2>')
-    .appendChild((0,node_html_parser__WEBPACK_IMPORTED_MODULE_1__.parse)(`<p id="last-scan-date">${new Date(Date.now()).toLocaleDateString()}</p>`))
+    .insertAdjacentHTML('afterend', `<p id="last-scan-date">${new Date(Date.now()).toLocaleDateString()}</p>`)
     .insertAdjacentHTML('afterend', '<h2 id="vulnerability-header">Present Vulnerabilities</h2>')
     .insertAdjacentHTML('afterend', '<table></table>');
 
