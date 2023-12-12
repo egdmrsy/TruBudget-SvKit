@@ -78,8 +78,8 @@ async function createNewIssue(vulnerabilities, vulnerabilityIdProjectMapping, is
   root.appendChild(parse('<h2 id="vulnerability-header">Present Vulnerabilities</h2>'));
   const table = root.appendChild(parse('<table></table>'));
 
-  root.lastChild.appendChild(parse('<thead><tr><th>Vulnerability ID</th><th>PkgName</th><th>Title</th><th>Severity</th><th>Status</th><th>Fixed Version</th><th>Published Date</th><th>Affects</th><th>Links</th></tr></thead>'));
-  const tableBody = table.appendChild(parse('<tbody id="table-body"></tbody>'));
+  table.appendChild(parse('<thead><tr><th>Vulnerability ID</th><th>PkgName</th><th>Title</th><th>Severity</th><th>Status</th><th>Fixed Version</th><th>Published Date</th><th>Affects</th><th>Links</th></tr></thead>'));
+  const tableBody = table.insertAdjacentHTML('beforeend', '<tbody id="table-body"></tbody>');
 
   for(const vulnerability of vulnerabilities) {
     if(vulnerability.links && Array.isArray(vulnerability.links) && vulnerability.links.length > 0) {
