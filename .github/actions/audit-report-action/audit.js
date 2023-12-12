@@ -2,14 +2,14 @@ import { Config } from './config';
 import { buildImage, cleanupImage } from './docker';
 import child_process from 'child_process';
 
-export async function runContainerAudit(projectName) {
+export async function performImageAudit(projectName) {
   const imageName = `docker.io/${projectName}:local`;
 
   console.info(`\nBuilding Docker Image ${imageName}...`);
 
   await buildImage(imageName, projectName, `./${projectName}`);
 
-  console.info(`\nAuditing image ${imageName}...`);
+  console.info(`\n Performing Image audit on image ${imageName}...`);
 
   const additionalArgs = ["image", imageName, "--format", "json", "--exit-code", "1", "--vuln-type", "os"];
   additionalArgs.push("--severity", Config.severityLevels);
@@ -23,15 +23,13 @@ export async function runContainerAudit(projectName) {
     maxBuffer: Config.spawnProcessBufferSize
   });
 
-  console.log(result);
-
   await cleanupImage(imageName);
 
   return result.stdout;
 }
 
-export async function runVulnerabilityAudit(projectName) {
-  console.info(`\nAuditing Project ${projectName}...`);
+export async function performFsAudit(projectName) {
+  console.info(`\n Performing File System audit on Project ${projectName}...`);
 
   const additionalArgs = ["fs", `./${projectName}`, "--format", "json", "--exit-code", "1"];
   additionalArgs.push("--severity", Config.severityLevels);
@@ -49,49 +47,21 @@ export async function runVulnerabilityAudit(projectName) {
     maxBuffer: Config.spawnProcessBufferSize
   });
 
-  console.log(result);
-
-  return result.stdout;
-
-}
-
-export async function runAudit(projectName) {
-  if (!projectName) {
-    throw new Error('A project name is required');
-  }
-
-  console.info(`\nAuditing ${projectName}...`);
-
-  process.chdir(projectName);
-
-  child_process.spawnSync("npm", ["ci", "--no-audit", "--legacy-peer-deps"], {
-    encoding: 'utf-8',
-    maxBuffer: SPAWN_PROCESS_BUFFER_SIZE
-  });
-
-  const result = child_process.spawnSync("npm", ["audit", "--json", "--omit=dev"], {
-    encoding: 'utf-8',
-    maxBuffer: SPAWN_PROCESS_BUFFER_SIZE
-  });
-
-  const auditRaw = JSON.parse(result.stdout);
-  let vulnerabilityList = [];
-
-  if (auditRaw.metadata?.vulnerabilities?.total > 0) {
-    console.info("Vulnerabilities found");
-    vulnerabilityList = extractVulnerabilities(auditRaw.vulnerabilities);
-  } else {
-    console.info("No vulnerabilities found");
-  }
-
-  process.chdir("..");
-
-  return vulnerabilityList;
+  return extractVulnerabilities(result.stdout);
 }
 
 
-function extractVulnerabilities(rawVulnerabilities) {
-  return Object.values(rawVulnerabilities).filter(value => {
-    return !value.isDirect && Array.isArray(value.via) && typeof value.via[0] === 'object';
+function extractVulnerabilities(stdout) {
+  return Object.values(stdout.Results[0].Vulnerabilities).map(value => {
+    return {
+      id: value.VulnerabilityID, 
+      packageName: value.PkgName, 
+      status: value.Status, 
+      title: value.Title, 
+      severity: value.Severity,
+      fixedVersion: value.FixedVersion,
+      links: value.References,
+      publishedDate: value.PublishedDate
+      }
   });
 }

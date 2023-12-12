@@ -10,9 +10,8 @@ __nccwpck_require__.r(__webpack_exports__);
 
 // EXPORTS
 __nccwpck_require__.d(__webpack_exports__, {
-  "runAudit": () => (/* binding */ runAudit),
-  "runContainerAudit": () => (/* binding */ runContainerAudit),
-  "runVulnerabilityAudit": () => (/* binding */ runVulnerabilityAudit)
+  "performFsAudit": () => (/* binding */ performFsAudit),
+  "performImageAudit": () => (/* binding */ performImageAudit)
 });
 
 // EXTERNAL MODULE: ./config.js
@@ -43,14 +42,14 @@ var external_child_process_default = /*#__PURE__*/__nccwpck_require__.n(external
 
 
 
-async function runContainerAudit(projectName) {
+async function performImageAudit(projectName) {
   const imageName = `docker.io/${projectName}:local`;
 
   console.info(`\nBuilding Docker Image ${imageName}...`);
 
   await buildImage(imageName, projectName, `./${projectName}`);
 
-  console.info(`\nAuditing image ${imageName}...`);
+  console.info(`\n Performing Image audit on image ${imageName}...`);
 
   const additionalArgs = ["image", imageName, "--format", "json", "--exit-code", "1", "--vuln-type", "os"];
   additionalArgs.push("--severity", config.Config.severityLevels);
@@ -64,15 +63,13 @@ async function runContainerAudit(projectName) {
     maxBuffer: config.Config.spawnProcessBufferSize
   });
 
-  console.log(result);
-
   await cleanupImage(imageName);
 
   return result.stdout;
 }
 
-async function runVulnerabilityAudit(projectName) {
-  console.info(`\nAuditing Project ${projectName}...`);
+async function performFsAudit(projectName) {
+  console.info(`\n Performing File System audit on Project ${projectName}...`);
 
   const additionalArgs = ["fs", `./${projectName}`, "--format", "json", "--exit-code", "1"];
   additionalArgs.push("--severity", config.Config.severityLevels);
@@ -90,50 +87,22 @@ async function runVulnerabilityAudit(projectName) {
     maxBuffer: config.Config.spawnProcessBufferSize
   });
 
-  console.log(result);
-
-  return result.stdout;
-
-}
-
-async function runAudit(projectName) {
-  if (!projectName) {
-    throw new Error('A project name is required');
-  }
-
-  console.info(`\nAuditing ${projectName}...`);
-
-  process.chdir(projectName);
-
-  external_child_process_default().spawnSync("npm", ["ci", "--no-audit", "--legacy-peer-deps"], {
-    encoding: 'utf-8',
-    maxBuffer: SPAWN_PROCESS_BUFFER_SIZE
-  });
-
-  const result = external_child_process_default().spawnSync("npm", ["audit", "--json", "--omit=dev"], {
-    encoding: 'utf-8',
-    maxBuffer: SPAWN_PROCESS_BUFFER_SIZE
-  });
-
-  const auditRaw = JSON.parse(result.stdout);
-  let vulnerabilityList = [];
-
-  if (auditRaw.metadata?.vulnerabilities?.total > 0) {
-    console.info("Vulnerabilities found");
-    vulnerabilityList = extractVulnerabilities(auditRaw.vulnerabilities);
-  } else {
-    console.info("No vulnerabilities found");
-  }
-
-  process.chdir("..");
-
-  return vulnerabilityList;
+  return extractVulnerabilities(result.stdout);
 }
 
 
-function extractVulnerabilities(rawVulnerabilities) {
-  return Object.values(rawVulnerabilities).filter(value => {
-    return !value.isDirect && Array.isArray(value.via) && typeof value.via[0] === 'object';
+function extractVulnerabilities(stdout) {
+  return Object.values(stdout.Results[0].Vulnerabilities).map(value => {
+    return {
+      id: value.VulnerabilityID, 
+      packageName: value.PkgName, 
+      status: value.Status, 
+      title: value.Title, 
+      severity: value.Severity,
+      fixedVersion: value.FixedVersion,
+      links: value.References,
+      publishedDate: value.PublishedDate
+      }
   });
 }
 
@@ -193,7 +162,7 @@ const octokit = _config__WEBPACK_IMPORTED_MODULE_0__.Config.octokit;
 const repo = _config__WEBPACK_IMPORTED_MODULE_0__.Config.repo;
 const issueTitlePrefix = _config__WEBPACK_IMPORTED_MODULE_0__.Config.issueTitlePrefix;
 
-async function createOrUpdateIssues(vulnerabilityIdProjectMapping, activeVulnerabilities) {
+async function createOrUpdateIssues(vulnerabilityIdProjectMapping, activeVulnerabilities, type) {
   // Get all security labeled open issues
   const { data: securityOpenIssues } = await octokit.rest.issues.listForRepo({
     ...repo,
@@ -201,26 +170,27 @@ async function createOrUpdateIssues(vulnerabilityIdProjectMapping, activeVulnera
     labels: ['security']
   });
 
-  const vulnerabilityIssues = securityOpenIssues.filter(issue => issue.title.includes(issueTitlePrefix));
+  
 
-  await Promise.all(activeVulnerabilities.map((vulnerability) => {
-    const { source: id, name } = vulnerability.via[0];
-    const issueTitle = `${issueTitlePrefix} ${id} - ${name}`;
-    const issue = vulnerabilityIssues.filter(issue => issue.title === issueTitle)[0];
-    if (issue) {
-      updateExistingIssue(issue, vulnerabilityIdProjectMapping.get(id));
-    } else {
-      createNewIssue(vulnerability, vulnerabilityIdProjectMapping.get(id), issueTitle);
-    }
-  }));
+  const issueTitle = type === "fs" ? `${issueTitlePrefix} Project Vulnerabilities`: `${issueTitlePrefix} Image Vulnerabilities`;
+  const vulnerabilityIssue = securityOpenIssues.find(issue => issue.title === issueTitle);
 
-  // Close issues referencing fixed vulnerabilities if not closed manually.
-  await closeOldIssues(vulnerabilityIssues, vulnerabilityIdProjectMapping);
+  if(vulnerabilityIssue && activeVulnerabilities > 0) {
+    return updateExistingIssue(vulnerabilityIssue, vulnerabilityIdProjectMapping);
+  } 
+  else if(vulnerabilityIssue && activeVulnerabilities == 0) {
+    return closeIssue(vulnerabilityIssue.number);
+  }
+  else {
+    return createNewIssue(activeVulnerabilities, vulnerabilityIdProjectMapping, issueTitle);
+  }
+
+ 
 }
 
-async function updateExistingIssue(issue, affectedProjects) {
-  const issueNumber = issue.number;
-  let issueBody = issue.body.replace(/[0-9]{1,2}\/[0-9]{1,2}\/[0-9]{4}/gm, new Date(Date.now()).toLocaleDateString());
+async function updateExistingIssue(vulnerabilityIssue, vulnerabilities, vulnerabilityIdProjectMapping) {
+  const issueNumber = vulnerabilityIssue.number;
+  let issueBody = vulnerabilityIssue.body.replace(/[0-9]{1,2}\/[0-9]{1,2}\/[0-9]{4}/gm, new Date(Date.now()).toLocaleDateString());
   let appendClosingListTag = false;
 
   for (const affectedProject of affectedProjects) {
@@ -237,38 +207,36 @@ async function updateExistingIssue(issue, affectedProjects) {
   });
 }
 
-async function createNewIssue(vulnerability, affectedProjects, issueTitle) {
-  const { source: id, name, title, severity, url } = vulnerability.via[0];
-  const effects = vulnerability.effects;
-  const newIssueBody = `<h2 id="last-checked-date-">Last checked date:</h2>
+async function createNewIssue(vulnerabilities, vulnerabilityIdProjectMapping, issueTitle) {
+ 
+  let rows = '';
+  for(const vulnerability of vulnerabilities) {
+    if(vulnerability.links && Array.isArray(vulnerability.links) && vulnerability.links.length > 0) {
+      const row = `<tr><td>${vulnerability.id}</td><td>${vulnerability.packageName}</td><td>${vulnerability.title}</td><td>${vulnerability.severity}</td><td>${vulnerability.status}</td><td>${vulnerability.fixedVersion}</td><td>${vulnerability.publishedDate}</td><td><ul>${vulnerabilityIdProjectMapping.get(vulnerability.id).map(project => `<li>${project}</li>`).join("")}</ul></td><td><ul>${vulnerability.links.map(link => `<li><a href="${link}">${link}</a></li>`).join('')}</ul></td></tr>`;
+      rows = rows.concat(row);
+    }
+  }
+  const newIssueBody = `<h2 id="last-scan-date-">Last scan date</h2>
     <p>${new Date(Date.now()).toLocaleDateString()}</p>
-    <h2 id="vulnerability-information">Vulnerability Information</h2>
+    <h2 id="vulnerability-header">Present Vulnerabilities</h2>
     <table>
       <thead>
         <tr>
-          <th>ID</th>
-          <th>Name</th>
+          <th>Vulnerability ID</th>
+          <th>PkgName</th>
           <th>Title</th>
           <th>Severity</th>
-          <th>URL</th>
-          <th>Effects</th>
+          <th>Status</th>
+          <th>Fixed Version</th>
+          <th>Published Date</th>
+          <th>Affects</th>
+          <th>Links</th>
         </tr>
       </thead>
       <tbody>
-        <tr>
-          <td>${id}</td>
-          <td>${name}</td>
-          <td>${title}</td>
-          <td>${severity}</td>
-          <td><a href="${url}">${url}</a></td>
-          <td>${effects.toString()}</td>
-        </tr>
+       ${rows}
       </tbody>
-    </table>
-    <h2 id="affected-projects">Affected Projects</h2>
-    <ul>
-      ${affectedProjects.map(project => `<li>${project}</li>`).join('')}
-    </ul>`;
+    </table>`;
 
   return octokit.rest.issues.create({
     ...repo,
@@ -278,12 +246,8 @@ async function createNewIssue(vulnerability, affectedProjects, issueTitle) {
   });
 }
 
-async function closeOldIssues(vulnerabilityIssues, vulnerabilityIdProjectMapping) {
-  const inactiveVulnerabilityIssues = vulnerabilityIssues.filter((vulnerabilityIssue) => {
-    const id = Number(vulnerabilityIssue.title.split(": ")[1].split(" - ")[0]);
-    return !vulnerabilityIdProjectMapping.has(id);
-  });
-  return Promise.all(inactiveVulnerabilityIssues.map((inactiveVulnerabilityIssue) => octokit.rest.issues.update({ ...repo, issue_number: inactiveVulnerabilityIssue.number, state: 'closed' })));
+async function closeIssue(issueNumber) {
+  return octokit.rest.issues.update({ ...repo, issue_number: issueNumber, state: 'closed' });
 }
 
 /***/ }),
@@ -31134,53 +31098,58 @@ module.exports = parseParams
 var __webpack_exports__ = {};
 // This entry need to be wrapped in an IIFE because it need to be isolated against other modules in the chunk.
 (() => {
-const { runAudit, runContainerAudit, runVulnerabilityAudit } = __nccwpck_require__(6024);
+const { performFsAudit, performImageAudit } = __nccwpck_require__(6024);
 const { validateConfig, Config } = __nccwpck_require__(152);
 const { createOrUpdateIssues } = __nccwpck_require__(9853);
 
 const run = async function() {
-  const prov_result = await runContainerAudit("provisioning");
-  const app_result = await runVulnerabilityAudit("provisioning");
-
-  await Config.octokit.rest.issues.create({
-    ...Config.repo,
-    title: "Test Image",
-    body: prov_result,
-    labels: ["security"]
-  });
-  await Config.octokit.rest.issues.create({
-    ...Config.repo,
-    title: "Test Vulnerability",
-    body: app_result,
-    labels: ["security"]
-  });
+  await doFsAudit();
 }
-/*
-const run = async function() {
+
+async function doImageAudit() {
+  console.info("Performing image auditing on projects");
   const vulnerabilityIdProjectMapping = new Map();
   const activeVulnerabilities = [];
-
-  const projectsVulnerabilities = await Promise.all(Config.projects.map(runAudit));
-
+  const projectsVulnerabilities = await Promise.all(Config.projects.map(performImageAudit));
   for (let i = 0; i < projectsVulnerabilities.length; i++) {
     const projectName = Config.projects[i];
     const projectVulnerabilities = projectsVulnerabilities[i];
 
     for (const projectVulnerability of projectVulnerabilities) {
-      const vulnerabilityId = projectVulnerability.via[0].source;
-
-      if (vulnerabilityIdProjectMapping.has(vulnerabilityId)){
-        vulnerabilityIdProjectMapping.get(vulnerabilityId).push(projectName);
+      const id = projectVulnerability.id;
+      if (vulnerabilityIdProjectMapping.has(id)){
+        vulnerabilityIdProjectMapping.get(id).push(projectName);
       } else {
         activeVulnerabilities.push(projectVulnerability);
-        vulnerabilityIdProjectMapping.set(vulnerabilityId, [projectName]);
+        vulnerabilityIdProjectMapping.set(id, [projectName]);
       }
     }
   }
-
-  await createOrUpdateIssues(vulnerabilityIdProjectMapping, activeVulnerabilities);
+  await createOrUpdateIssues(vulnerabilityIdProjectMapping, activeVulnerabilities, 'image');
 }
-*/
+
+async function doFsAudit() {
+  console.info("Performing file system auditing on projects");
+  const vulnerabilityIdProjectMapping = new Map();
+  const activeVulnerabilities = [];
+  const projectsVulnerabilities = await Promise.all(Config.projects.map(performFsAudit));
+  for (let i = 0; i < projectsVulnerabilities.length; i++) {
+    const projectName = Config.projects[i];
+    const projectVulnerabilities = projectsVulnerabilities[i];
+
+    for (const projectVulnerability of projectVulnerabilities) {
+      const id = projectVulnerability.id;
+      if (vulnerabilityIdProjectMapping.has(id)){
+        vulnerabilityIdProjectMapping.get(id).push(projectName);
+      } else {
+        activeVulnerabilities.push(projectVulnerability);
+        vulnerabilityIdProjectMapping.set(id, [projectName]);
+      }
+    }
+  }
+  return createOrUpdateIssues(vulnerabilityIdProjectMapping, activeVulnerabilities, 'fs');
+}
+
 validateConfig();
 
 run();
