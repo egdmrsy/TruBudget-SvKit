@@ -95,6 +95,9 @@ async function performFsAudit(projectName) {
 
 
 function extractVulnerabilities(stdout) {
+  if(!stdout.Results) {
+    return [];
+  }
   return Object.values(stdout.Results[0].Vulnerabilities).map(value => {
     return {
       id: value.VulnerabilityID, 
