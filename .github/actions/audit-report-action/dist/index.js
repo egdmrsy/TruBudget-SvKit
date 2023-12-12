@@ -232,29 +232,28 @@ async function updateExistingIssue(vulnerabilityIssue, activeVulnerabilities, vu
 
 async function createNewIssue(vulnerabilities, vulnerabilityIdProjectMapping, issueTitle) {
   const root = (0,node_html_parser__WEBPACK_IMPORTED_MODULE_1__.parse)('');
-  const table = root
-    .insertAdjacentHTML('afterbegin', '<h2>Last scan date</h2>')
-    .insertAdjacentHTML('afterend', `<p id="last-scan-date">${new Date(Date.now()).toLocaleDateString()}</p>`)
-    .insertAdjacentHTML('afterend', '<h2 id="vulnerability-header">Present Vulnerabilities</h2>')
-    .insertAdjacentHTML('afterend', '<table></table>');
+  root.appendChild((0,node_html_parser__WEBPACK_IMPORTED_MODULE_1__.parse)('<h2>Last scan date</h2>'));
+  root.appendChild((0,node_html_parser__WEBPACK_IMPORTED_MODULE_1__.parse)(`<p id="last-scan-date">${new Date(Date.now()).toLocaleDateString()}</p>`));
+  root.appendChild((0,node_html_parser__WEBPACK_IMPORTED_MODULE_1__.parse)(`<p id="last-scan-date">${new Date(Date.now()).toLocaleDateString()}</p>`));
+  root.appendChild((0,node_html_parser__WEBPACK_IMPORTED_MODULE_1__.parse)('<h2 id="vulnerability-header">Present Vulnerabilities</h2>'));
+  const table = root.appendChild((0,node_html_parser__WEBPACK_IMPORTED_MODULE_1__.parse)('<table></table>'));
 
   table.appendChild((0,node_html_parser__WEBPACK_IMPORTED_MODULE_1__.parse)('<thead><tr><th>Vulnerability ID</th><th>PkgName</th><th>Title</th><th>Severity</th><th>Status</th><th>Fixed Version</th><th>Published Date</th><th>Affects</th><th>Links</th></tr></thead>'));
   const tableBody = table.appendChild((0,node_html_parser__WEBPACK_IMPORTED_MODULE_1__.parse)('<tbody id="table-body"></tbody>'));
 
   for(const vulnerability of vulnerabilities) {
     if(vulnerability.links && Array.isArray(vulnerability.links) && vulnerability.links.length > 0) {
-      tableBody
-        .appendChild((0,node_html_parser__WEBPACK_IMPORTED_MODULE_1__.parse)(`<tr id="${vulnerability.id}"></tr>`))
-        .appendChild((0,node_html_parser__WEBPACK_IMPORTED_MODULE_1__.parse)(`<td>${vulnerability.id}</td>`))
-        .insertAdjacentHTML('afterend', `<td>${vulnerability.packageName}</td>`)
-        .insertAdjacentHTML('afterend', `<td>${vulnerability.title}</td>`)
-        .insertAdjacentHTML('afterend', `<td>${vulnerability.severity}</td>`)
-        .insertAdjacentHTML('afterend', `<td>${vulnerability.status}</td>`)
-        .insertAdjacentHTML('afterend', `<td>${vulnerability.fixedVersion}</td>`)
-        .insertAdjacentHTML('afterend', `<td>${vulnerability.publishedDate}</td>`)
-        .insertAdjacentHTML('afterend', `<td><ul id="${vulnerability.id}-projects">${vulnerabilityIdProjectMapping.get(vulnerability.id).map(project => `<li>${project}</li>`).join("")}</ul></td>`)
-        .insertAdjacentHTML('afterend', `<td><ul>${vulnerability.links.filter(link => link.includes("GHSA" || 0)).map(link => `<li><a href="${link}">${link}</a></li>`).join('')}</ul></td>`);
-      
+      const row = tableBody.appendChild((0,node_html_parser__WEBPACK_IMPORTED_MODULE_1__.parse)(`<tr id="${vulnerability.id}"></tr>`));
+      row.appendChild((0,node_html_parser__WEBPACK_IMPORTED_MODULE_1__.parse)(`<td>${vulnerability.id}</td>`));
+      row.appendChild((0,node_html_parser__WEBPACK_IMPORTED_MODULE_1__.parse)(`<td>${vulnerability.id}</td>`));
+      row.appendChild((0,node_html_parser__WEBPACK_IMPORTED_MODULE_1__.parse)(`<td>${vulnerability.packageName}</td>`));
+      row.appendChild((0,node_html_parser__WEBPACK_IMPORTED_MODULE_1__.parse)(`<td>${vulnerability.title}</td>`));
+      row.appendChild((0,node_html_parser__WEBPACK_IMPORTED_MODULE_1__.parse)(`<td>${vulnerability.severity}</td>`));
+      row.appendChild((0,node_html_parser__WEBPACK_IMPORTED_MODULE_1__.parse)(`<td>${vulnerability.status}</td>`));
+      row.appendChild((0,node_html_parser__WEBPACK_IMPORTED_MODULE_1__.parse)(`<td>${vulnerability.fixedVersion}</td>`));
+      row.appendChild((0,node_html_parser__WEBPACK_IMPORTED_MODULE_1__.parse)(`<td>${vulnerability.publishedDate}</td>`));
+      row.appendChild((0,node_html_parser__WEBPACK_IMPORTED_MODULE_1__.parse)(`<td><ul id="${vulnerability.id}-projects">${vulnerabilityIdProjectMapping.get(vulnerability.id).map(project => `<li>${project}</li>`).join("")}</ul></td>`));
+      row.appendChild((0,node_html_parser__WEBPACK_IMPORTED_MODULE_1__.parse)(`<td><ul>${vulnerability.links.filter(link => link.includes("GHSA" || 0)).map(link => `<li><a href="${link}">${link}</a></li>`).join('')}</ul></td>`));
     }
   }
 
