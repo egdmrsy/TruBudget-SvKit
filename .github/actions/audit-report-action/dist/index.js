@@ -175,13 +175,10 @@ async function createOrUpdateIssues(vulnerabilityIdProjectMapping, activeVulnera
   const issueTitle = type === "fs" ? `${issueTitlePrefix} Project Vulnerabilities` : `${issueTitlePrefix} Image Vulnerabilities`;
 
   const vulnerabilityIssue = securityOpenIssues.find(issue => issue.title === issueTitle);
-  const d = securityOpenIssues.filter(i => i.title === issueTitle)[0];
-  console.info(vulnerabilityIssue);
-  console.info(d);
-  if(vulnerabilityIssue && activeVulnerabilities > 0) {
+  if(vulnerabilityIssue && activeVulnerabilities.length > 0) {
     await updateExistingIssue(vulnerabilityIssue, vulnerabilityIdProjectMapping);
   } 
-  else if(vulnerabilityIssue && activeVulnerabilities == 0) {
+  else if(vulnerabilityIssue && activeVulnerabilities.length == 0) {
     await closeIssue(vulnerabilityIssue.number);
   }
   else {
