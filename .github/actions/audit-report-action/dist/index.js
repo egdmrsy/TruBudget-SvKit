@@ -234,11 +234,10 @@ async function createNewIssue(vulnerabilities, vulnerabilityIdProjectMapping, is
   const root = (0,node_html_parser__WEBPACK_IMPORTED_MODULE_1__.parse)('');
   root.appendChild((0,node_html_parser__WEBPACK_IMPORTED_MODULE_1__.parse)('<h2>Last scan date</h2>'));
   root.appendChild((0,node_html_parser__WEBPACK_IMPORTED_MODULE_1__.parse)(`<p id="last-scan-date">${new Date(Date.now()).toLocaleDateString()}</p>`));
-  root.appendChild((0,node_html_parser__WEBPACK_IMPORTED_MODULE_1__.parse)(`<p id="last-scan-date">${new Date(Date.now()).toLocaleDateString()}</p>`));
   root.appendChild((0,node_html_parser__WEBPACK_IMPORTED_MODULE_1__.parse)('<h2 id="vulnerability-header">Present Vulnerabilities</h2>'));
   const table = root.appendChild((0,node_html_parser__WEBPACK_IMPORTED_MODULE_1__.parse)('<table></table>'));
 
-  table.appendChild((0,node_html_parser__WEBPACK_IMPORTED_MODULE_1__.parse)('<thead><tr><th>Vulnerability ID</th><th>PkgName</th><th>Title</th><th>Severity</th><th>Status</th><th>Fixed Version</th><th>Published Date</th><th>Affects</th><th>Links</th></tr></thead>'));
+  root.lastChild().appendChild((0,node_html_parser__WEBPACK_IMPORTED_MODULE_1__.parse)('<thead><tr><th>Vulnerability ID</th><th>PkgName</th><th>Title</th><th>Severity</th><th>Status</th><th>Fixed Version</th><th>Published Date</th><th>Affects</th><th>Links</th></tr></thead>'));
   const tableBody = table.appendChild((0,node_html_parser__WEBPACK_IMPORTED_MODULE_1__.parse)('<tbody id="table-body"></tbody>'));
 
   for(const vulnerability of vulnerabilities) {
