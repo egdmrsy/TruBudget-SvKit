@@ -207,7 +207,7 @@ async function updateExistingIssue(vulnerabilityIssue, activeVulnerabilities, vu
       const issueProjects = children.map(node => node.innerText);
       affectedProjects.forEach(proj => {
         if(!issueProjects.includes(proj)) {
-          projectParentList.insertAdjacentHTML('beforeend', `<li>${proj}</li>`);
+          projectParentList.appendChild((0,node_html_parser__WEBPACK_IMPORTED_MODULE_1__.parse)(`<li>${proj}</li>`));
         }
       });
     } 
@@ -219,7 +219,7 @@ async function updateExistingIssue(vulnerabilityIssue, activeVulnerabilities, vu
     if(!currentIds.includes(vulnerability.id)) {
       const row = `<tr id="${vulnerability.id}"><td>${vulnerability.id}</td><td>${vulnerability.packageName}</td><td>${vulnerability.title}</td><td>${vulnerability.severity}</td><td>${vulnerability.status}</td><td>${vulnerability.fixedVersion}</td><td>${vulnerability.publishedDate}</td><td><ul id="${vulnerability.id}-projects">${vulnerabilityIdProjectMapping.get(vulnerability.id).map(project => `<li>${project}</li>`).join("")}</ul></td><td><ul>${vulnerability.links.filter(link => link.includes("GHSA" || 0)).map(link => `<li><a href="${link}">${link}</a></li>`).join('')}</ul></td></tr>`;
       const parent = root.querySelector("#table-body");
-      parent.insertAdjacentHTML('beforeend', row);
+      parent.appendChild((0,node_html_parser__WEBPACK_IMPORTED_MODULE_1__.parse)(row));
     }
   });
 
