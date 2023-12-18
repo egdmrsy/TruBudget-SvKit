@@ -223,11 +223,7 @@ async function updateExistingIssue(vulnerabilityIssue, activeVulnerabilities, vu
   });
   activeVulnerabilities.forEach(vulnerability => {
     if(!currentIds.includes(vulnerability.id)) {
-      let row = `<tr id="${vulnerability.id}"><td>${vulnerability.id}</td><td>${vulnerability.packageName}</td><td>${vulnerability.title}</td><td>${vulnerability.severity}</td><td>${vulnerability.status}</td><td>${vulnerability.fixedVersion}</td><td>${vulnerability.publishedDate}</td><td><ul id="${vulnerability.id}-projects">${vulnerabilityIdProjectMapping.get(vulnerability.id).map(project => `<li>${project}</li>`).join("")}</ul></td>`;
-      if(vulnerability.links) {
-       row = row.concat(`<td><ul>${vulnerability.links.filter(link => link.includes("GHSA" || 0)).map(link => `<li><a href="${link}">${link}</a></li>`).join('')}</ul></td>`);
-      }
-      row = row.concat(`</tr>`);
+      const row = `<tr id="${vulnerability.id}"><td>${vulnerability.id}</td><td>${vulnerability.packageName}</td><td>${vulnerability.title}</td><td>${vulnerability.severity}</td><td>${vulnerability.status}</td><td>${vulnerability.fixedVersion ? vulnerability.fixedVersion : '-'}</td><td>${vulnerability.publishedDate ? vulnerability.publishedDate : '-'}</td><td><ul id="${vulnerability.id}-projects">${vulnerabilityIdProjectMapping.get(vulnerability.id).map(project => `<li>${project}</li>`).join("")}</ul></td><td><ul>${vulnerability.links.filter(link => link.includes("GHSA" || 0)).map(link => `<li><a href="${link}">${link}</a></li>`).join('')}</ul></td></tr>`;
       const parent = root.querySelector("#table-body");
       parent.appendChild((0,node_html_parser__WEBPACK_IMPORTED_MODULE_1__.parse)(row));
     }
@@ -258,8 +254,8 @@ async function createNewIssue(vulnerabilities, vulnerabilityIdProjectMapping, is
       root.querySelector(`#${vulnerability.id}`).appendChild((0,node_html_parser__WEBPACK_IMPORTED_MODULE_1__.parse)(`<td>${vulnerability.title}</td>`));
       root.querySelector(`#${vulnerability.id}`).appendChild((0,node_html_parser__WEBPACK_IMPORTED_MODULE_1__.parse)(`<td>${vulnerability.severity}</td>`));
       root.querySelector(`#${vulnerability.id}`).appendChild((0,node_html_parser__WEBPACK_IMPORTED_MODULE_1__.parse)(`<td>${vulnerability.status}</td>`));
-      root.querySelector(`#${vulnerability.id}`).appendChild((0,node_html_parser__WEBPACK_IMPORTED_MODULE_1__.parse)(`<td>${vulnerability.fixedVersion}</td>`));
-      root.querySelector(`#${vulnerability.id}`).appendChild((0,node_html_parser__WEBPACK_IMPORTED_MODULE_1__.parse)(`<td>${vulnerability.publishedDate}</td>`));
+      root.querySelector(`#${vulnerability.id}`).appendChild((0,node_html_parser__WEBPACK_IMPORTED_MODULE_1__.parse)(`<td>${vulnerability.fixedVersion ? vulnerability.fixedVersion : '-'}</td>`));
+      root.querySelector(`#${vulnerability.id}`).appendChild((0,node_html_parser__WEBPACK_IMPORTED_MODULE_1__.parse)(`<td>${vulnerability.publishedDate ? vulnerability.publishedDate : '-'}</td>`));
       root.querySelector(`#${vulnerability.id}`).appendChild((0,node_html_parser__WEBPACK_IMPORTED_MODULE_1__.parse)(`<td><ul id="${vulnerability.id}-projects">${vulnerabilityIdProjectMapping.get(vulnerability.id).map(project => `<li>${project}</li>`).join("")}</ul></td>`));
       root.querySelector(`#${vulnerability.id}`).appendChild((0,node_html_parser__WEBPACK_IMPORTED_MODULE_1__.parse)(`<td><ul>${vulnerability.links.filter(link => link.includes("GHSA" || 0)).map(link => `<li><a href="${link}">${link}</a></li>`).join('')}</ul></td>`));
     }
