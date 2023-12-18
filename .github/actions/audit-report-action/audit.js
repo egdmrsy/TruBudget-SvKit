@@ -23,6 +23,8 @@ export async function performImageAudit(projectName) {
     maxBuffer: Config.spawnProcessBufferSize
   });
 
+  console.info(`\n Cleaning up image ${imageName}...`);
+
   await cleanupImage(imageName);
 
   return result.stdout;

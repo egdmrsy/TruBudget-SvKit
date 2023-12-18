@@ -63,6 +63,8 @@ async function performImageAudit(projectName) {
     maxBuffer: config.Config.spawnProcessBufferSize
   });
 
+  console.info(`\n Cleaning up image ${imageName}...`);
+
   await cleanupImage(imageName);
 
   return result.stdout;
@@ -38668,7 +38670,7 @@ const { validateConfig, Config } = __nccwpck_require__(152);
 const { createOrUpdateIssues } = __nccwpck_require__(9853);
 
 const run = async function() {
-  await doFsAudit();
+ // await doFsAudit();
   await doImageAudit();
 }
 
