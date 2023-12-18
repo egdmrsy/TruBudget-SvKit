@@ -21,20 +21,6 @@ var config = __nccwpck_require__(152);
 
 const child_process = __nccwpck_require__(2081);
 
-async function buildImage(imageName, path) {
-  child_process.spawnSync("docker", ["build", "-t", imageName, path], {
-    encoding: 'utf-8',
-    maxBuffer: Config.spawnProcessBufferSize
-  });
-}
-
-async function cleanupImage(imageName) {
-  child_process.spawnSync("docker", ["rmi", imageName], {
-    encoding: 'utf-8',
-    maxBuffer: Config.spawnProcessBufferSize
-  });
-}
-
 async function pullImage(imageName) {
   child_process.spawnSync("docker", ["pull", `trubudget/${imageName}`], {
     encoding: 'utf-8',
@@ -54,17 +40,15 @@ var external_child_process_default = /*#__PURE__*/__nccwpck_require__.n(external
 
 
 async function performImageAudit(projectName) {
-  const imageName = `docker.io/${projectName}:local`;
-
   let image = projectName;
   if(image === "excel-export-service" || image === "email-notification-service") {
     image = image.replace("-service", "");
   }
   await pullImage(image);
   const additionalArgs = ["image", "--input", `${image}.tar`, "--format", "json", "--exit-code", "1", "--vuln-type", "os"];
-  additionalArgs.push("--severity", config.Config.severityLevels);
+  additionalArgs.push("--severity", config.Config.severityLevelsForImage);
 
-  if (!config.Config.includeUnfixed) {
+  if (!config.Config.includeUnfixedForImage) {
     additionalArgs.push("--ignore-unfixed");
   }
 
@@ -72,9 +56,10 @@ async function performImageAudit(projectName) {
     encoding: 'utf-8',
     maxBuffer: config.Config.spawnProcessBufferSize
   });
+
   const outputJSON = JSON.parse(result.stdout);
   if(outputJSON.Results && outputJSON.Results.length > 0 && outputJSON.Results[0].Vulnerabilities && outputJSON.Results[0].Vulnerabilities.length > 0) {
-    const t = outputJSON.Results[0].Vulnerabilities.map(value => {
+    return outputJSON.Results[0].Vulnerabilities.map(value => {
       return {
         id: value.VulnerabilityID, 
         packageName: value.PkgName, 
@@ -86,8 +71,6 @@ async function performImageAudit(projectName) {
         publishedDate: value.PublishedDate
         }
     });
-    console.info(t);
-    return t;
   }
   return [];
 }
@@ -96,13 +79,13 @@ async function performFsAudit(projectName) {
   console.info(`\n Performing File System audit on Project ${projectName}...`);
 
   const additionalArgs = ["fs", `./${projectName}`, "--format", "json", "--exit-code", "1"];
-  additionalArgs.push("--severity", config.Config.severityLevels);
+  additionalArgs.push("--severity", config.Config.severityLevelsForFs);
 
   if (config.Config.includeDevDependencies) {
     additionalArgs.push("--include-dev-deps");
   }
 
-  if (!config.Config.includeUnfixed) {
+  if (!config.Config.includeUnfixedForFs) {
     additionalArgs.push("--ignore-unfixed");
   }
 
@@ -146,8 +129,10 @@ const github = __nccwpck_require__(3617);
 const Config = {
   projects: core.getInput('projects').split(','),
   includeDevDependencies: core.getInput('include-dev-dependencies') === 'true',
-  includeUnfixed: core.getInput('include-unfixed') === 'true',
-  severityLevels: core.getInput('severity-levels') || "CRITICAL,HIGH,MEDIUM,LOW",
+  includeUnfixedForImage: core.getInput('include-unfixed-for-image') === 'true',
+  includeUnfixedForFs: core.getInput('include-unfixed-for-fs') === 'true',
+  severityLevelsForImage: core.getInput('severity-levels-for-image') || "CRITICAL,HIGH,MEDIUM",
+  severityLevelsForFs: core.getInput('severity-levels-for-fs') || "CRITICAL,HIGH,MEDIUM,LOW",
   token: core.getInput('token'),
   issueTitlePrefix: core.getInput('issue_title_prefix') || 'Security Report:',
   octokit: github.getOctokit(core.getInput('token')),

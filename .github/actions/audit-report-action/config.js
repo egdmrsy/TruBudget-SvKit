@@ -4,8 +4,10 @@ const github = require('@actions/github');
 export const Config = {
   projects: core.getInput('projects').split(','),
   includeDevDependencies: core.getInput('include-dev-dependencies') === 'true',
-  includeUnfixed: core.getInput('include-unfixed') === 'true',
-  severityLevels: core.getInput('severity-levels') || "CRITICAL,HIGH,MEDIUM,LOW",
+  includeUnfixedForImage: core.getInput('include-unfixed-for-image') === 'true',
+  includeUnfixedForFs: core.getInput('include-unfixed-for-fs') === 'true',
+  severityLevelsForImage: core.getInput('severity-levels-for-image') || "CRITICAL,HIGH,MEDIUM",
+  severityLevelsForFs: core.getInput('severity-levels-for-fs') || "CRITICAL,HIGH,MEDIUM,LOW",
   token: core.getInput('token'),
   issueTitlePrefix: core.getInput('issue_title_prefix') || 'Security Report:',
   octokit: github.getOctokit(core.getInput('token')),

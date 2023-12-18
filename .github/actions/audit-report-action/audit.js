@@ -3,17 +3,15 @@ import { buildImage, cleanupImage, pullImage } from './docker';
 import child_process from 'child_process';
 
 export async function performImageAudit(projectName) {
-  const imageName = `docker.io/${projectName}:local`;
-
   let image = projectName;
   if(image === "excel-export-service" || image === "email-notification-service") {
     image = image.replace("-service", "");
   }
   await pullImage(image);
   const additionalArgs = ["image", "--input", `${image}.tar`, "--format", "json", "--exit-code", "1", "--vuln-type", "os"];
-  additionalArgs.push("--severity", Config.severityLevels);
+  additionalArgs.push("--severity", Config.severityLevelsForImage);
 
-  if (!Config.includeUnfixed) {
+  if (!Config.includeUnfixedForImage) {
     additionalArgs.push("--ignore-unfixed");
   }
 
@@ -21,9 +19,10 @@ export async function performImageAudit(projectName) {
     encoding: 'utf-8',
     maxBuffer: Config.spawnProcessBufferSize
   });
+
   const outputJSON = JSON.parse(result.stdout);
   if(outputJSON.Results && outputJSON.Results.length > 0 && outputJSON.Results[0].Vulnerabilities && outputJSON.Results[0].Vulnerabilities.length > 0) {
-    const t = outputJSON.Results[0].Vulnerabilities.map(value => {
+    return outputJSON.Results[0].Vulnerabilities.map(value => {
       return {
         id: value.VulnerabilityID, 
         packageName: value.PkgName, 
@@ -35,8 +34,6 @@ export async function performImageAudit(projectName) {
         publishedDate: value.PublishedDate
         }
     });
-    console.info(t);
-    return t;
   }
   return [];
 }
@@ -45,13 +42,13 @@ export async function performFsAudit(projectName) {
   console.info(`\n Performing File System audit on Project ${projectName}...`);
 
   const additionalArgs = ["fs", `./${projectName}`, "--format", "json", "--exit-code", "1"];
-  additionalArgs.push("--severity", Config.severityLevels);
+  additionalArgs.push("--severity", Config.severityLevelsForFs);
 
   if (Config.includeDevDependencies) {
     additionalArgs.push("--include-dev-deps");
   }
 
-  if (!Config.includeUnfixed) {
+  if (!Config.includeUnfixedForFs) {
     additionalArgs.push("--ignore-unfixed");
   }
 

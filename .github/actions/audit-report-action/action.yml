@@ -5,9 +5,13 @@ inputs:
       required: true
     include-dev-dependencies:
       required: true
-    include-unfixed:
+    include-unfixed-for-image:
       required: false
-    severity-levels:
+    include-unfixed-for-fs:
+      required: false
+    severity-levels-for-image:
+      required: true
+    severity-levels-for-fs:
       required: true
     issue_title_prefix:
       required: false
