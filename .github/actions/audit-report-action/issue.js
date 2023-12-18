@@ -88,7 +88,7 @@ async function createNewIssue(vulnerabilities, vulnerabilityIdProjectMapping, is
       root.querySelector(`#${vulnerability.id}`).appendChild(parse(`<td>${vulnerability.status}</td>`));
       root.querySelector(`#${vulnerability.id}`).appendChild(parse(`<td>${vulnerability.fixedVersion ? vulnerability.fixedVersion : '-'}</td>`));
       root.querySelector(`#${vulnerability.id}`).appendChild(parse(`<td>${vulnerability.publishedDate ? vulnerability.publishedDate : '-'}</td>`));
-      root.querySelector(`#${vulnerability.id}`).appendChild(parse(`<td><ul id="${vulnerability.id}-projects">${vulnerabilityIdProjectMapping.get(vulnerability.id).map(project => `<li>${project}</li>`).join("")}</ul></td>`));
+      root.querySelector(`#${vulnerability.id}`).appendChild(parse(`<td><ul id="${vulnerability.id}-projects">${[...new Set(vulnerabilityIdProjectMapping.get(vulnerability.id))].map(project => `<li>${project}</li>`).join("")}</ul></td>`));
       root.querySelector(`#${vulnerability.id}`).appendChild(parse(`<td><ul>${vulnerability.links.filter(link => link.includes("GHSA" || "nvd")).map(link => `<li><a href="${link}">${link}</a></li>`).join('')}</ul></td>`));
     }
   }

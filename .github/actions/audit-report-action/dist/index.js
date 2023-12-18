@@ -255,7 +255,7 @@ async function createNewIssue(vulnerabilities, vulnerabilityIdProjectMapping, is
       root.querySelector(`#${vulnerability.id}`).appendChild((0,node_html_parser__WEBPACK_IMPORTED_MODULE_1__.parse)(`<td>${vulnerability.status}</td>`));
       root.querySelector(`#${vulnerability.id}`).appendChild((0,node_html_parser__WEBPACK_IMPORTED_MODULE_1__.parse)(`<td>${vulnerability.fixedVersion ? vulnerability.fixedVersion : '-'}</td>`));
       root.querySelector(`#${vulnerability.id}`).appendChild((0,node_html_parser__WEBPACK_IMPORTED_MODULE_1__.parse)(`<td>${vulnerability.publishedDate ? vulnerability.publishedDate : '-'}</td>`));
-      root.querySelector(`#${vulnerability.id}`).appendChild((0,node_html_parser__WEBPACK_IMPORTED_MODULE_1__.parse)(`<td><ul id="${vulnerability.id}-projects">${vulnerabilityIdProjectMapping.get(vulnerability.id).map(project => `<li>${project}</li>`).join("")}</ul></td>`));
+      root.querySelector(`#${vulnerability.id}`).appendChild((0,node_html_parser__WEBPACK_IMPORTED_MODULE_1__.parse)(`<td><ul id="${vulnerability.id}-projects">${[...new Set(vulnerabilityIdProjectMapping.get(vulnerability.id))].map(project => `<li>${project}</li>`).join("")}</ul></td>`));
       root.querySelector(`#${vulnerability.id}`).appendChild((0,node_html_parser__WEBPACK_IMPORTED_MODULE_1__.parse)(`<td><ul>${vulnerability.links.filter(link => link.includes("GHSA" || 0)).map(link => `<li><a href="${link}">${link}</a></li>`).join('')}</ul></td>`));
     }
   }
