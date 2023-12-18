@@ -15,3 +15,14 @@ export async function cleanupImage(imageName) {
     maxBuffer: Config.spawnProcessBufferSize
   });
 }
+
+export async function pullImage(imageName) {
+  child_process.spawnSync("docker", ["pull", `trubudget/${imageName}`], {
+    encoding: 'utf-8',
+    maxBuffer: Config.spawnProcessBufferSize
+  });
+  child_process.spawnSync("docker", ["save", `trubudget/${imageName}`, "-o", `${imageName}.tar`], {
+    encoding: 'utf-8',
+    maxBuffer: Config.spawnProcessBufferSize
+  });
+}

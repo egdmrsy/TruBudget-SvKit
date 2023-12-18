@@ -24,12 +24,23 @@ const child_process = __nccwpck_require__(2081);
 async function buildImage(imageName, path) {
   child_process.spawnSync("docker", ["build", "-t", imageName, path], {
     encoding: 'utf-8',
-    maxBuffer: config.Config.spawnProcessBufferSize
+    maxBuffer: Config.spawnProcessBufferSize
   });
 }
 
 async function cleanupImage(imageName) {
   child_process.spawnSync("docker", ["rmi", imageName], {
+    encoding: 'utf-8',
+    maxBuffer: Config.spawnProcessBufferSize
+  });
+}
+
+async function pullImage(imageName) {
+  child_process.spawnSync("docker", ["pull", `trubudget/${imageName}`], {
+    encoding: 'utf-8',
+    maxBuffer: config.Config.spawnProcessBufferSize
+  });
+  child_process.spawnSync("docker", ["save", `trubudget/${imageName}`, "-o", `${imageName}.tar`], {
     encoding: 'utf-8',
     maxBuffer: config.Config.spawnProcessBufferSize
   });
@@ -45,13 +56,19 @@ var external_child_process_default = /*#__PURE__*/__nccwpck_require__.n(external
 async function performImageAudit(projectName) {
   const imageName = `docker.io/${projectName}:local`;
 
-  console.info(`\nBuilding Docker Image ${imageName}...`);
+  /*console.info(`\nBuilding Docker Image ${imageName}...`);
 
   await buildImage(imageName, projectName, `./${projectName}`);
 
-  console.info(`\n Performing Image audit on image ${imageName}...`);
+  console.info(`\n Performing Image audit on image ${imageName}...`);*/
+  let image = projectName;
+  if(image === "excel-export-service" || image === "email-notification-service") {
+    image = image.replace("-service", "");
+  }
+  await pullImage(image);
 
-  const additionalArgs = ["image", imageName, "--format", "json", "--exit-code", "1", "--vuln-type", "os"];
+  //const additionalArgs = ["image", imageName, "--format", "json", "--exit-code", "1", "--vuln-type", "os"];
+  const additionalArgs = ["image", "--input", `${image}.tar`, "--format", "json", "--exit-code", "1", "--vuln-type", "os"];
   additionalArgs.push("--severity", config.Config.severityLevels);
 
   if (!config.Config.includeUnfixed) {
@@ -63,9 +80,9 @@ async function performImageAudit(projectName) {
     maxBuffer: config.Config.spawnProcessBufferSize
   });
 
-  console.info(`\n Cleaning up image ${imageName}...`);
+  /*console.info(`\n Cleaning up image ${imageName}...`);
 
-  await cleanupImage(imageName);
+  await cleanupImage(imageName);*/
 
   return result.stdout;
 }
