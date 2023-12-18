@@ -35,7 +35,7 @@ export async function performImageAudit(projectName) {
         publishedDate: value.PublishedDate
         }
     });
-    t.foreach(tt => {console.info(tt)})
+    console.info(t);
     return t;
   }
   return [];
