@@ -9,9 +9,9 @@ export async function performImageAudit(projectName) {
   }
   await pullImage(image);
   const additionalArgs = ["image", "--input", `${image}.tar`, "--format", "json", "--exit-code", "1", "--vuln-type", "os"];
-  additionalArgs.push("--severity", Config.severityLevelsForImage);
+  additionalArgs.push("--severity", Config.severityLevels);
 
-  if (!Config.includeUnfixedForImage) {
+  if (!Config.includeUnfixed) {
     additionalArgs.push("--ignore-unfixed");
   }
 
@@ -42,13 +42,13 @@ export async function performFsAudit(projectName) {
   console.info(`\n Performing File System audit on Project ${projectName}...`);
 
   const additionalArgs = ["fs", `./${projectName}`, "--format", "json", "--exit-code", "1"];
-  additionalArgs.push("--severity", Config.severityLevelsForFs);
+  additionalArgs.push("--severity", Config.severityLevels);
 
   if (Config.includeDevDependencies) {
     additionalArgs.push("--include-dev-deps");
   }
 
-  if (!Config.includeUnfixedForFs) {
+  if (!Config.includeUnfixed) {
     additionalArgs.push("--ignore-unfixed");
   }
 

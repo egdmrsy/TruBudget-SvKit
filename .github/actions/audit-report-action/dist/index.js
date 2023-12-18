@@ -46,9 +46,9 @@ async function performImageAudit(projectName) {
   }
   await pullImage(image);
   const additionalArgs = ["image", "--input", `${image}.tar`, "--format", "json", "--exit-code", "1", "--vuln-type", "os"];
-  additionalArgs.push("--severity", config.Config.severityLevelsForImage);
+  additionalArgs.push("--severity", config.Config.severityLevels);
 
-  if (!config.Config.includeUnfixedForImage) {
+  if (!config.Config.includeUnfixed) {
     additionalArgs.push("--ignore-unfixed");
   }
 
@@ -79,13 +79,13 @@ async function performFsAudit(projectName) {
   console.info(`\n Performing File System audit on Project ${projectName}...`);
 
   const additionalArgs = ["fs", `./${projectName}`, "--format", "json", "--exit-code", "1"];
-  additionalArgs.push("--severity", config.Config.severityLevelsForFs);
+  additionalArgs.push("--severity", config.Config.severityLevels);
 
   if (config.Config.includeDevDependencies) {
     additionalArgs.push("--include-dev-deps");
   }
 
-  if (!config.Config.includeUnfixedForFs) {
+  if (!config.Config.includeUnfixed) {
     additionalArgs.push("--ignore-unfixed");
   }
 
@@ -129,10 +129,9 @@ const github = __nccwpck_require__(3617);
 const Config = {
   projects: core.getInput('projects').split(','),
   includeDevDependencies: core.getInput('include-dev-dependencies') === 'true',
-  includeUnfixedForImage: core.getInput('include-unfixed-for-image') === 'true',
-  includeUnfixedForFs: core.getInput('include-unfixed-for-fs') === 'true',
-  severityLevelsForImage: core.getInput('severity-levels-for-image') || "CRITICAL,HIGH,MEDIUM",
-  severityLevelsForFs: core.getInput('severity-levels-for-fs') || "CRITICAL,HIGH,MEDIUM,LOW",
+  includeUnfixed: core.getInput('include-unfixed') === 'true',
+  severityLevels: core.getInput('severity-levels') || "CRITICAL,HIGH,MEDIUM",
+  scanType: core.getInput('scan-type'),
   token: core.getInput('token'),
   issueTitlePrefix: core.getInput('issue_title_prefix') || 'Security Report:',
   octokit: github.getOctokit(core.getInput('token')),
@@ -142,7 +141,7 @@ const Config = {
 
 
 function validateConfig() {
-  const { projects, severityLevels, token } = Config;
+  const { projects, token } = Config;
 
   if (!projects) {
     throw new Error('Input project names are required');
@@ -38678,8 +38677,11 @@ const { validateConfig, Config } = __nccwpck_require__(152);
 const { createOrUpdateIssues } = __nccwpck_require__(9853);
 
 const run = async function() {
-  await doFsAudit();
-  await doImageAudit();
+  if(Config.scanType === 'fs') {
+    await doFsAudit();
+  } else {
+    await doImageAudit();
+  }
 }
 
 async function doImageAudit() {

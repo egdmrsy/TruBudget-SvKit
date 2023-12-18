@@ -3,8 +3,11 @@ const { validateConfig, Config } = require('./config');
 const { createOrUpdateIssues } = require('./issue');
 
 const run = async function() {
-  await doFsAudit();
-  await doImageAudit();
+  if(Config.scanType === 'fs') {
+    await doFsAudit();
+  } else {
+    await doImageAudit();
+  }
 }
 
 async function doImageAudit() {

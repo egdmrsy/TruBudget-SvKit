@@ -5,16 +5,14 @@ inputs:
       required: true
     include-dev-dependencies:
       required: true
-    include-unfixed-for-image:
+    include-unfixed:
       required: false
-    include-unfixed-for-fs:
-      required: false
-    severity-levels-for-image:
-      required: true
-    severity-levels-for-fs:
+    severity-levels:
       required: true
     issue_title_prefix:
       required: false
+    scan-type:
+      required: true
     token:
       required: true
 runs:
