@@ -27,8 +27,8 @@ jobs:
           projects: frontend,api,blockchain,provisioning,e2e-test,excel-export-service,email-notification-service,storage-service,logging-service,migration
           include-dev-dependencies: false
           issue_title_prefix: "Security Report:"
-          include-unfixed-for-image: true
+          include-unfixed-for-image: false
           include-unfixed-for-fs: true
-          severity-levels-for-image: CRITICAL,HIGH,MEDIUM
+          severity-levels-for-image: CRITICAL,HIGH
           severity-levels-for-fs: CRITICAL,HIGH,MEDIUM,LOW
           token: ${{ secrets.GITHUB_TOKEN }}
