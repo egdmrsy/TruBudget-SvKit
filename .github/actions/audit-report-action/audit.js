@@ -5,18 +5,11 @@ import child_process from 'child_process';
 export async function performImageAudit(projectName) {
   const imageName = `docker.io/${projectName}:local`;
 
-  /*console.info(`\nBuilding Docker Image ${imageName}...`);
-
-  await buildImage(imageName, projectName, `./${projectName}`);
-
-  console.info(`\n Performing Image audit on image ${imageName}...`);*/
   let image = projectName;
   if(image === "excel-export-service" || image === "email-notification-service") {
     image = image.replace("-service", "");
   }
   await pullImage(image);
-
-  //const additionalArgs = ["image", imageName, "--format", "json", "--exit-code", "1", "--vuln-type", "os"];
   const additionalArgs = ["image", "--input", `${image}.tar`, "--format", "json", "--exit-code", "1", "--vuln-type", "os"];
   additionalArgs.push("--severity", Config.severityLevels);
 
@@ -28,11 +21,7 @@ export async function performImageAudit(projectName) {
     encoding: 'utf-8',
     maxBuffer: Config.spawnProcessBufferSize
   });
-
-  /*console.info(`\n Cleaning up image ${imageName}...`);
-
-  await cleanupImage(imageName);*/
-
+  console.info(result.stdout);
   return result.stdout;
 }
 

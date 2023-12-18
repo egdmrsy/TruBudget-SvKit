@@ -56,18 +56,11 @@ var external_child_process_default = /*#__PURE__*/__nccwpck_require__.n(external
 async function performImageAudit(projectName) {
   const imageName = `docker.io/${projectName}:local`;
 
-  /*console.info(`\nBuilding Docker Image ${imageName}...`);
-
-  await buildImage(imageName, projectName, `./${projectName}`);
-
-  console.info(`\n Performing Image audit on image ${imageName}...`);*/
   let image = projectName;
   if(image === "excel-export-service" || image === "email-notification-service") {
     image = image.replace("-service", "");
   }
   await pullImage(image);
-
-  //const additionalArgs = ["image", imageName, "--format", "json", "--exit-code", "1", "--vuln-type", "os"];
   const additionalArgs = ["image", "--input", `${image}.tar`, "--format", "json", "--exit-code", "1", "--vuln-type", "os"];
   additionalArgs.push("--severity", config.Config.severityLevels);
 
@@ -79,11 +72,7 @@ async function performImageAudit(projectName) {
     encoding: 'utf-8',
     maxBuffer: config.Config.spawnProcessBufferSize
   });
-
-  /*console.info(`\n Cleaning up image ${imageName}...`);
-
-  await cleanupImage(imageName);*/
-
+  console.info(result.stdout);
   return result.stdout;
 }
 
@@ -210,6 +199,12 @@ async function updateExistingIssue(vulnerabilityIssue, activeVulnerabilities, vu
   const root = (0,node_html_parser__WEBPACK_IMPORTED_MODULE_1__.parse)(vulnerabilityIssue.body);
   root.querySelector('#last-scan-date').set_content(new Date(Date.now()).toLocaleDateString());
   const currentIds = root.querySelectorAll('tr').filter(elem => elem.id && elem.id !== '').map(elem => elem.id);
+  // debug
+  activeVulnerabilities.forEach(vul => {
+    console.info(`Vulnerability id: ${vul}`);
+    console.info(`Vulnerability: ${vulnerabilityIdProjectMapping.get(vul).toString()}`);
+  })
+
   currentIds.forEach(id => {
     if(vulnerabilityIdProjectMapping.has(id)) {
       const affectedProjects = vulnerabilityIdProjectMapping.get(id);
@@ -38697,31 +38692,18 @@ const run = async function() {
 
 async function doImageAudit() {
   console.info("Performing image auditing on projects");
-  const vulnerabilityIdProjectMapping = new Map();
-  const activeVulnerabilities = [];
-  const projectsVulnerabilities = await Promise.all(Config.projects.map(performImageAudit));
-  for (let i = 0; i < projectsVulnerabilities.length; i++) {
-    const projectName = Config.projects[i];
-    const projectVulnerabilities = projectsVulnerabilities[i];
-
-    for (const projectVulnerability of projectVulnerabilities) {
-      const id = projectVulnerability.id;
-      if (vulnerabilityIdProjectMapping.has(id)){
-        vulnerabilityIdProjectMapping.get(id).push(projectName);
-      } else {
-        activeVulnerabilities.push(projectVulnerability);
-        vulnerabilityIdProjectMapping.set(id, [projectName]);
-      }
-    }
-  }
-  await createOrUpdateIssues(vulnerabilityIdProjectMapping, activeVulnerabilities, 'image');
+  await doAudit('image');
 }
 
 async function doFsAudit() {
   console.info("Performing file system auditing on projects");
+  await doAudit('fs');
+}
+
+async function doAudit(type) {
   const vulnerabilityIdProjectMapping = new Map();
   const activeVulnerabilities = [];
-  const projectsVulnerabilities = await Promise.all(Config.projects.map(performFsAudit));
+  const projectsVulnerabilities = await Promise.all(Config.projects.map(type==='fs' ? performFsAudit : performImageAudit));
   for (let i = 0; i < projectsVulnerabilities.length; i++) {
     const projectName = Config.projects[i];
     const projectVulnerabilities = projectsVulnerabilities[i];
@@ -38735,7 +38717,7 @@ async function doFsAudit() {
       }
     }
   }
-  await createOrUpdateIssues(vulnerabilityIdProjectMapping, activeVulnerabilities, 'fs');
+  await createOrUpdateIssues(vulnerabilityIdProjectMapping, activeVulnerabilities, type);
 }
 
 validateConfig();
