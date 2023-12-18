@@ -6,7 +6,7 @@ inputs:
     include-dev-dependencies:
       required: true
     include-unfixed:
-      required: true
+      required: false
     severity-levels:
       required: true
     issue_title_prefix:

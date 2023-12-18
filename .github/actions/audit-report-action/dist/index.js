@@ -72,8 +72,22 @@ async function performImageAudit(projectName) {
     encoding: 'utf-8',
     maxBuffer: config.Config.spawnProcessBufferSize
   });
-  console.info(result.stdout);
-  return result.stdout;
+  const outputJSON = JSON.parse(result.stdout);
+  if(outputJSON.Results && outputJSON.Results.length > 0 && outputJSON.Results[0].Vulnerabilities && outputJSON.Results[0].Vulnerabilities.length > 0) {
+    return outputJSON.Results[0].Vulnerabilities.map(value => {
+      return {
+        id: value.VulnerabilityID, 
+        packageName: value.PkgName, 
+        status: value.Status, 
+        title: value.Title, 
+        severity: value.Severity,
+        fixedVersion: value.FixedVersion,
+        links: value.References,
+        publishedDate: value.PublishedDate
+        }
+    });
+  }
+  return [];
 }
 
 async function performFsAudit(projectName) {
