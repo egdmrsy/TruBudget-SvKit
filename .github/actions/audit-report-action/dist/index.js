@@ -38678,7 +38678,7 @@ const { validateConfig, Config } = __nccwpck_require__(152);
 const { createOrUpdateIssues } = __nccwpck_require__(9853);
 
 const run = async function() {
- // await doFsAudit();
+  await doFsAudit();
   await doImageAudit();
 }
 
