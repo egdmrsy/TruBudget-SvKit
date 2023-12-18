@@ -4,9 +4,9 @@ inputs:
     projects:
       required: true
     include-dev-dependencies:
-      required: false
+      required: true
     include-unfixed:
-      required: false
+      required: true
     severity-levels:
       required: true
     issue_title_prefix:
