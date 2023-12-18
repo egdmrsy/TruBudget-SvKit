@@ -23,7 +23,7 @@ export async function performImageAudit(projectName) {
   });
   const outputJSON = JSON.parse(result.stdout);
   if(outputJSON.Results && outputJSON.Results.length > 0 && outputJSON.Results[0].Vulnerabilities && outputJSON.Results[0].Vulnerabilities.length > 0) {
-    return outputJSON.Results[0].Vulnerabilities.map(value => {
+    const t = outputJSON.Results[0].Vulnerabilities.map(value => {
       return {
         id: value.VulnerabilityID, 
         packageName: value.PkgName, 
@@ -35,6 +35,8 @@ export async function performImageAudit(projectName) {
         publishedDate: value.PublishedDate
         }
     });
+    t.foreach(tt => {console.info(tt)})
+    return t;
   }
   return [];
 }

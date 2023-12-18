@@ -32,11 +32,6 @@ async function updateExistingIssue(vulnerabilityIssue, activeVulnerabilities, vu
   const root = parse(vulnerabilityIssue.body);
   root.querySelector('#last-scan-date').set_content(new Date(Date.now()).toLocaleDateString());
   const currentIds = root.querySelectorAll('tr').filter(elem => elem.id && elem.id !== '').map(elem => elem.id);
-  // debug
-  activeVulnerabilities.forEach(vul => {
-    console.info(`Vulnerability id: ${vul}`);
-    console.info(`Vulnerability: ${vulnerabilityIdProjectMapping.get(vul).toString()}`);
-  })
 
   currentIds.forEach(id => {
     if(vulnerabilityIdProjectMapping.has(id)) {

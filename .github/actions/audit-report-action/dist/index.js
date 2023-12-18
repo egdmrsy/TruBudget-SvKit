@@ -74,7 +74,7 @@ async function performImageAudit(projectName) {
   });
   const outputJSON = JSON.parse(result.stdout);
   if(outputJSON.Results && outputJSON.Results.length > 0 && outputJSON.Results[0].Vulnerabilities && outputJSON.Results[0].Vulnerabilities.length > 0) {
-    return outputJSON.Results[0].Vulnerabilities.map(value => {
+    const t = outputJSON.Results[0].Vulnerabilities.map(value => {
       return {
         id: value.VulnerabilityID, 
         packageName: value.PkgName, 
@@ -86,6 +86,8 @@ async function performImageAudit(projectName) {
         publishedDate: value.PublishedDate
         }
     });
+    t.foreach(tt => {console.info(tt)})
+    return t;
   }
   return [];
 }
@@ -213,11 +215,6 @@ async function updateExistingIssue(vulnerabilityIssue, activeVulnerabilities, vu
   const root = (0,node_html_parser__WEBPACK_IMPORTED_MODULE_1__.parse)(vulnerabilityIssue.body);
   root.querySelector('#last-scan-date').set_content(new Date(Date.now()).toLocaleDateString());
   const currentIds = root.querySelectorAll('tr').filter(elem => elem.id && elem.id !== '').map(elem => elem.id);
-  // debug
-  activeVulnerabilities.forEach(vul => {
-    console.info(`Vulnerability id: ${vul}`);
-    console.info(`Vulnerability: ${vulnerabilityIdProjectMapping.get(vul).toString()}`);
-  })
 
   currentIds.forEach(id => {
     if(vulnerabilityIdProjectMapping.has(id)) {
